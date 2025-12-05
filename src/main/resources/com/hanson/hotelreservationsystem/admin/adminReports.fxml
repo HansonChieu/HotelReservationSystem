@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminReportsController">
+   <top>
+      <VBox styleClass="page-header">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="20">
+               <padding>
+                  <Insets bottom="15" left="20" right="20" top="15" />
+               </padding>
+               <children>
+                  <Label styleClass="page-title" text="Reports &amp; Analytics">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button onAction="#handleExport" styleClass="primary-button" text="📥 Export Current Report" />
+               </children>
+            </HBox>
+            <TabPane fx:id="reportTabs" styleClass="report-tabs">
+               <tabs>
+                  <Tab fx:id="revenueTab" closable="false" text="💰 Revenue" />
+                  <Tab fx:id="occupancyTab" closable="false" text="🏨 Occupancy" />
+                  <Tab fx:id="activityTab" closable="false" text="📋 Activity Logs" />
+                  <Tab fx:id="feedbackSummaryTab" closable="false" text="💬 Feedback Summary" />
+               </tabs>
+            </TabPane>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <StackPane fx:id="reportContentPane" styleClass="report-content">
+         <children>
+            <VBox fx:id="revenueContent" spacing="20" styleClass="report-section">
+               <padding>
+                  <Insets bottom="20" left="20" right="20" top="20" />
+               </padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="15">
+                     <children>
+                        <Label styleClass="filter-label" text="Period:" />
+                        <ComboBox fx:id="revenuePeriodCombo" onAction="#handleRevenuePeriodChange" prefWidth="150" />
+                        <DatePicker fx:id="revenueStartDate" prefWidth="150" promptText="Start Date" />
+                        <DatePicker fx:id="revenueEndDate" prefWidth="150" promptText="End Date" />
+                        <Button onAction="#handleGenerateRevenue" styleClass="primary-button" text="Generate" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="30" styleClass="summary-cards">
+                     <children>
+                        <VBox alignment="CENTER" spacing="10" styleClass="summary-card">
+                           <children>
+                              <Label styleClass="card-label" text="Total Revenue" />
+                              <Label fx:id="totalRevenueLabel" styleClass="card-value" text="\$0.00" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="10" styleClass="summary-card">
+                           <children>
+                              <Label styleClass="card-label" text="Reservations" />
+                              <Label fx:id="totalReservationsLabel" styleClass="card-value" text="0" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="10" styleClass="summary-card">
+                           <children>
+                              <Label styleClass="card-label" text="Avg per Reservation" />
+                              <Label fx:id="avgRevenueLabel" styleClass="card-value" text="\$0.00" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <TableView fx:id="revenueTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="revPeriodColumn" prefWidth="150" text="Period" />
+                        <TableColumn fx:id="revCountColumn" prefWidth="120" text="Reservations" />
+                        <TableColumn fx:id="revSubtotalColumn" prefWidth="120" text="Subtotal" />
+                        <TableColumn fx:id="revTaxColumn" prefWidth="100" text="Tax" />
+                        <TableColumn fx:id="revDiscountColumn" prefWidth="100" text="Discounts" />
+                        <TableColumn fx:id="revTotalColumn" prefWidth="120" text="Total" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox fx:id="occupancyContent" spacing="20" styleClass="report-section" visible="false">
+               <padding>
+                  <Insets bottom="20" left="20" right="20" top="20" />
+               </padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="15">
+                     <children>
+                        <Label styleClass="filter-label" text="Period:" />
+                        <ComboBox fx:id="occupancyPeriodCombo" onAction="#handleOccupancyPeriodChange" prefWidth="150" />
+                        <DatePicker fx:id="occupancyStartDate" prefWidth="150" promptText="Start Date" />
+                        <DatePicker fx:id="occupancyEndDate" prefWidth="150" promptText="End Date" />
+                        <ComboBox fx:id="roomTypeCombo" prefWidth="150" promptText="All Room Types" />
+                        <Button onAction="#handleGenerateOccupancy" styleClass="primary-button" text="Generate" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="30" styleClass="summary-cards">
+                     <children>
+                        <VBox alignment="CENTER" spacing="10" styleClass="summary-card">
+                           <children>
+                              <Label styleClass="card-label" text="Avg Occupancy" />
+                              <Label fx:id="avgOccupancyLabel" styleClass="card-value" text="0%" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="10" styleClass="summary-card">
+                           <children>
+                              <Label styleClass="card-label" text="Peak Occupancy" />
+                              <Label fx:id="peakOccupancyLabel" styleClass="card-value" text="0%" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="10" styleClass="summary-card">
+                           <children>
+                              <Label styleClass="card-label" text="Total Room Nights" />
+                              <Label fx:id="totalRoomNightsLabel" styleClass="card-value" text="0" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <TableView fx:id="occupancyTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="occDateColumn" prefWidth="120" text="Date" />
+                        <TableColumn fx:id="occAvailableColumn" prefWidth="100" text="Available" />
+                        <TableColumn fx:id="occOccupiedColumn" prefWidth="100" text="Occupied" />
+                        <TableColumn fx:id="occPercentageColumn" prefWidth="120" text="Occupancy %" />
+                        <TableColumn fx:id="occRevenueColumn" prefWidth="120" text="Revenue" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox fx:id="activityContent" spacing="20" styleClass="report-section" visible="false">
+               <padding>
+                  <Insets bottom="20" left="20" right="20" top="20" />
+               </padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="15">
+                     <children>
+                        <TextField fx:id="activitySearchField" promptText="Search logs..." HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="activityTypeFilter" prefWidth="150" promptText="All Actions" />
+                        <DatePicker fx:id="activityDateFilter" prefWidth="150" promptText="Date" />
+                        <Button onAction="#handleSearchActivity" styleClass="primary-button" text="🔍 Search" />
+                     </children>
+                  </HBox>
+                  <TableView fx:id="activityTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="actTimestampColumn" prefWidth="150" text="Timestamp" />
+                        <TableColumn fx:id="actActorColumn" prefWidth="120" text="User" />
+                        <TableColumn fx:id="actActionColumn" prefWidth="150" text="Action" />
+                        <TableColumn fx:id="actEntityColumn" prefWidth="100" text="Entity" />
+                        <TableColumn fx:id="actIdColumn" prefWidth="80" text="ID" />
+                        <TableColumn fx:id="actMessageColumn" prefWidth="300" text="Message" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox fx:id="feedbackSummaryContent" spacing="20" styleClass="report-section" visible="false">
+               <padding>
+                  <Insets bottom="20" left="20" right="20" top="20" />
+               </padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="15">
+                     <children>
+                        <DatePicker fx:id="feedbackStartDate" prefWidth="150" promptText="Start Date" />
+                        <DatePicker fx:id="feedbackEndDate" prefWidth="150" promptText="End Date" />
+                        <ComboBox fx:id="feedbackRatingFilter" prefWidth="120" promptText="All Ratings" />
+                        <Button onAction="#handleGenerateFeedback" styleClass="primary-button" text="Generate" />
+                     </children>
+                  </HBox>
+                  <GridPane hgap="30" styleClass="feedback-summary-grid" vgap="15">
+                     <children>
+                        <Label styleClass="summary-label" text="Total Feedback:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="feedbackTotalLabel" styleClass="summary-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label styleClass="summary-label" text="Average Rating:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="feedbackAvgLabel" styleClass="summary-value" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="summary-label" text="Most Common Tags:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="feedbackTagsLabel" styleClass="summary-value" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                  </GridPane>
+                  <TableView fx:id="feedbackSummaryTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="fbDateColumn" prefWidth="120" text="Date" />
+                        <TableColumn fx:id="fbGuestColumn" prefWidth="150" text="Guest" />
+                        <TableColumn fx:id="fbRatingColumn" prefWidth="100" text="Rating" />
+                        <TableColumn fx:id="fbSentimentColumn" prefWidth="100" text="Sentiment" />
+                        <TableColumn fx:id="fbCommentColumn" prefWidth="350" text="Comment" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </center>
+</BorderPane>

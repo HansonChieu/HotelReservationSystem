@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminFeedbackViewerController">
+    <top>
+        <VBox styleClass="page-header">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <padding>
+                        <Insets bottom="15" left="20" right="20" top="15" />
+                    </padding>
+                    <children>
+                        <Button onAction="#handleBack" styleClass="back-button" text="← Back" />
+                        <Label styleClass="page-title" text="Guest Feedback">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="averageRatingLabel" styleClass="rating-label" text="Average: ⭐ 4.5" />
+                        <Button onAction="#handleRefresh" styleClass="secondary-button" text="🔄 Refresh" />
+                        <Button onAction="#handleExport" styleClass="secondary-button" text="📥 Export" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="20" styleClass="content-area">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="15" styleClass="filter-bar">
+                    <children>
+                        <Label styleClass="filter-label" text="Filter by:" />
+                        <ComboBox fx:id="ratingFilter" onAction="#handleFilterChange" prefWidth="120" promptText="Rating" />
+                        <ComboBox fx:id="sentimentFilter" onAction="#handleFilterChange" prefWidth="120" promptText="Sentiment" />
+                        <!-- Renamed to match controller: fromDateFilter, toDateFilter -->
+                        <DatePicker fx:id="fromDateFilter" onAction="#handleFilterChange" prefWidth="150" promptText="From Date" />
+                        <DatePicker fx:id="toDateFilter" onAction="#handleFilterChange" prefWidth="150" promptText="To Date" />
+                        <!-- Renamed to match controller: searchField -->
+                        <TextField fx:id="searchField" onKeyReleased="#handleSearch" promptText="Search guest..." HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleSearch" styleClass="icon-button" text="🔍" />
+                        <Button onAction="#handleClearFilters" styleClass="secondary-button" text="Clear" />
+                    </children>
+                </HBox>
+
+                <!-- Statistics Summary - matches controller expectations -->
+                <HBox spacing="30" styleClass="summary-bar">
+                    <children>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card">
+                            <children>
+                                <Label styleClass="stat-label" text="Total Feedback" />
+                                <!-- Renamed to match controller: totalFeedbackLabel -->
+                                <Label fx:id="totalFeedbackLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card positive">
+                            <children>
+                                <Label styleClass="stat-label" text="😊 Positive" />
+                                <Label fx:id="positiveFeedbackLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card neutral">
+                            <children>
+                                <Label styleClass="stat-label" text="😐 Neutral" />
+                                <Label fx:id="neutralFeedbackLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card negative">
+                            <children>
+                                <Label styleClass="stat-label" text="😞 Negative" />
+                                <Label fx:id="negativeFeedbackLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Feedback Table -->
+                <TableView fx:id="feedbackTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" prefWidth="60" text="ID" />
+                        <TableColumn fx:id="dateColumn" prefWidth="120" text="Date" />
+                        <TableColumn fx:id="guestColumn" prefWidth="150" text="Guest" />
+                        <TableColumn fx:id="reservationColumn" prefWidth="120" text="Reservation" />
+                        <TableColumn fx:id="ratingColumn" prefWidth="100" text="Rating" />
+                        <TableColumn fx:id="sentimentColumn" prefWidth="100" text="Sentiment" />
+                        <TableColumn fx:id="commentColumn" prefWidth="300" text="Comment" />
+                        <TableColumn fx:id="actionsColumn" prefWidth="100" text="Actions" />
+                    </columns>
+                    <placeholder>
+                        <VBox alignment="CENTER" spacing="10">
+                            <children>
+                                <Label styleClass="empty-icon" text="💬" />
+                                <Label styleClass="empty-text" text="No feedback entries" />
+                            </children>
+                        </VBox>
+                    </placeholder>
+                </TableView>
+
+                <!-- Details Panel (shown when feedback is selected) -->
+                <VBox fx:id="detailsPanel" managed="false" spacing="10" styleClass="details-panel" visible="false">
+                    <children>
+                        <Label styleClass="section-header" text="Feedback Details" />
+                        <HBox spacing="20">
+                            <children>
+                                <VBox spacing="5">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Guest:" />
+                                        <Label fx:id="detailGuestLabel" styleClass="detail-value" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Reservation:" />
+                                        <Label fx:id="detailReservationLabel" styleClass="detail-value" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Date:" />
+                                        <Label fx:id="detailDateLabel" styleClass="detail-value" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Rating:" />
+                                        <Label fx:id="detailRatingLabel" styleClass="detail-value" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Sentiment:" />
+                                        <Label fx:id="detailSentimentLabel" styleClass="detail-value" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                        <VBox spacing="5">
+                            <children>
+                                <Label styleClass="detail-label" text="Comment:" />
+                                <Label fx:id="detailCommentArea" styleClass="detail-comment" wrapText="true" />
+                            </children>
+                        </VBox>
+                        <HBox spacing="10">
+                            <children>
+                                <Button onAction="#handleViewReservation" styleClass="secondary-button" text="View Reservation" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminReservationFormController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="form-header">
+            <padding>
+                <Insets bottom="15" left="20" right="20" top="15" />
+            </padding>
+            <children>
+                <Button onAction="#handleBack" styleClass="back-button" text="← Back" />
+                <Label fx:id="formTitle" styleClass="form-title" text="New Reservation">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="reservationIdLabel" styleClass="reservation-id" text="" />
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="form-scroll">
+            <content>
+                <VBox spacing="25" styleClass="form-content">
+                    <padding>
+                        <Insets bottom="25" left="30" right="30" top="25" />
+                    </padding>
+                    <children>
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="👤 Guest Information" />
+                                <Separator />
+                                <GridPane hgap="20" vgap="15">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <children>
+                                                <HBox spacing="5">
+                                                    <Label styleClass="field-label" text="First Name" />
+                                                    <Label styleClass="required" text="*" />
+                                                </HBox>
+                                                <TextField fx:id="firstNameField" promptText="Enter first name" styleClass="form-field" />
+                                                <Label fx:id="firstNameError" styleClass="error-label" visible="false" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <children>
+                                                <HBox spacing="5">
+                                                    <Label styleClass="field-label" text="Last Name" />
+                                                    <Label styleClass="required" text="*" />
+                                                </HBox>
+                                                <TextField fx:id="lastNameField" promptText="Enter last name" styleClass="form-field" />
+                                                <Label fx:id="lastNameError" styleClass="error-label" visible="false" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                            <children>
+                                                <HBox spacing="5">
+                                                    <Label styleClass="field-label" text="Email" />
+                                                    <Label styleClass="required" text="*" />
+                                                </HBox>
+                                                <TextField fx:id="emailField" promptText="email@example.com" styleClass="form-field" />
+                                                <Label fx:id="emailError" styleClass="error-label" visible="false" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <children>
+                                                <HBox spacing="5">
+                                                    <Label styleClass="field-label" text="Phone" />
+                                                    <Label styleClass="required" text="*" />
+                                                </HBox>
+                                                <TextField fx:id="phoneField" promptText="(555) 123-4567" styleClass="form-field" />
+                                                <Label fx:id="phoneError" styleClass="error-label" visible="false" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                            <children>
+                                                <Label styleClass="field-label" text="ID/Passport Number" />
+                                                <TextField fx:id="idNumberField" promptText="Enter ID or passport" styleClass="form-field" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                            <children>
+                                                <Label styleClass="field-label" text="Country" />
+                                                <TextField fx:id="countryField" promptText="Enter Country" styleClass="form-field" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                            <children>
+                                                <Label styleClass="field-label" text="State/Province" />
+                                                <TextField fx:id="stateField" promptText="State/Province" styleClass="form-field" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <children>
+                                                <Label styleClass="field-label" text="Postal Code" />
+                                                <TextField fx:id="postalCodeField" promptText="Zip" styleClass="form-field" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </GridPane>
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <children>
+                                        <Button onAction="#handleSearchGuest" styleClass="secondary-button" text="🔍 Search Existing Guest" />
+                                        <Label fx:id="existingGuestLabel" styleClass="info-label" text="" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="📅 Reservation Details" />
+                                <Separator />
+                                <GridPane hgap="20" vgap="15">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <children>
+                                                <HBox spacing="5">
+                                                    <Label styleClass="field-label" text="Check-In Date" />
+                                                    <Label styleClass="required" text="*" />
+                                                </HBox>
+                                                <DatePicker fx:id="checkInPicker" maxWidth="Infinity" onAction="#handleCheckInChange" styleClass="form-field" />
+                                                <Label fx:id="checkInError" styleClass="error-label" visible="false" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <children>
+                                                <HBox spacing="5">
+                                                    <Label styleClass="field-label" text="Check-Out Date" />
+                                                    <Label styleClass="required" text="*" />
+                                                </HBox>
+                                                <DatePicker fx:id="checkOutPicker" maxWidth="Infinity" onAction="#handleCheckOutChange" styleClass="form-field" />
+                                                <Label fx:id="checkOutError" styleClass="error-label" visible="false" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="field-label" text="Number of Adults" />
+                                                <Spinner fx:id="adultsSpinner" editable="true" initialValue="1" max="10" maxWidth="Infinity" min="1" styleClass="form-spinner" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="field-label" text="Number of Children" />
+                                                <Spinner fx:id="childrenSpinner" editable="true" initialValue="0" max="10" maxWidth="Infinity" min="0" styleClass="form-spinner" />
+                                            </children>
+                                        </VBox>
+
+                                        <HBox alignment="CENTER_LEFT" spacing="20" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                                            <children>
+                                                <Label styleClass="field-label" text="Duration:" />
+                                                <Label fx:id="nightsLabel" styleClass="info-value" text="0 nights" />
+                                                <Region prefWidth="20" />
+                                                <Label styleClass="field-label" text="Total Guests:" />
+                                                <Label fx:id="totalGuestsLabel" styleClass="info-value" text="1 Guests" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="🛏 Room Selection" />
+                                <Separator />
+
+                                <GridPane hgap="20" vgap="15">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <Spinner fx:id="singleRoomSpinner" editable="true" initialValue="0" max="10" min="0" prefWidth="80" />
+                                            <Label text="Single Room" />
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <Spinner fx:id="doubleRoomSpinner" editable="true" initialValue="0" max="10" min="0" prefWidth="80" />
+                                            <Label text="Double Room" />
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                            <Spinner fx:id="deluxeRoomSpinner" editable="true" initialValue="0" max="10" min="0" prefWidth="80" />
+                                            <Label text="Deluxe Room" />
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <Spinner fx:id="penthouseSpinner" editable="true" initialValue="0" max="5" min="0" prefWidth="80" />
+                                            <Label text="Penthouse Room" />
+                                        </HBox>
+                                    </children>
+                                </GridPane>
+
+                                <Separator />
+
+                                <VBox fx:id="selectedRoomsBox" spacing="10" styleClass="rooms-list">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="15">
+                                            <children>
+                                                <Button onAction="#handleCheckAvailability" styleClass="secondary-button" text="🔍 Check Availability" />
+                                                <Label fx:id="availabilityLabel" styleClass="info-label" text="" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="noRoomsLabel" styleClass="empty-label" text="No rooms selected" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="✨ Add-On Services" />
+                                <Separator />
+                                <GridPane hgap="15" vgap="12">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <CheckBox fx:id="wifiCheckbox" onAction="#handleServiceChange" text="Wi-Fi ($15/night)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <CheckBox fx:id="breakfastCheckbox" onAction="#handleServiceChange" text="Breakfast ($25/person/night)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <CheckBox fx:id="parkingCheckbox" onAction="#handleServiceChange" text="Parking ($20/night)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <CheckBox fx:id="spaCheckbox" onAction="#handleServiceChange" text="Spa Package ($75/person)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="📝 Special Requests" />
+                                <Separator />
+                                <TextArea fx:id="specialRequestsArea" prefRowCount="3" promptText="Enter any special requests or requirements..." styleClass="form-textarea" wrapText="true" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15" styleClass="form-section, pricing-section">
+                            <children>
+                                <Label styleClass="section-header" text="💰 Pricing Summary" />
+                                <Separator />
+                                <GridPane hgap="20" styleClass="pricing-grid" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints /> <RowConstraints /> <RowConstraints /> <RowConstraints /> <RowConstraints /> <RowConstraints /> <RowConstraints /> <RowConstraints /> <RowConstraints /> </rowConstraints>
+                                    <children>
+                                        <Label styleClass="price-label" text="Room Charges:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="roomChargesLabel" styleClass="price-value" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                        <Label styleClass="price-label" text="Services:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="servicesChargesLabel" styleClass="price-value" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                        <Separator GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+
+                                        <Label styleClass="price-label" text="Subtotal:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <Label fx:id="subtotalLabel" styleClass="price-value" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                        <Label styleClass="price-label" text="Discount (%):" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                            <children>
+                                                <Spinner fx:id="discountSpinner" editable="true" prefWidth="80" />
+                                                <Label fx:id="maxDiscountLabel" style="-fx-font-size: 11px; -fx-text-fill: #666;" text="(Max: 15%)" />
+                                            </children>
+                                        </HBox>
+
+                                        <Label styleClass="price-label" text="Discount Amount:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <Label fx:id="discountAmountLabel" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold;" text="-$0.00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                        <Label styleClass="price-label" text="Tax (13%):" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <Label fx:id="taxLabel" styleClass="price-value" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                        <Separator styleClass="total-separator" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="7" />
+
+                                        <Label styleClass="price-label, total-label" text="Total:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                        <Label fx:id="totalLabel" styleClass="price-value, total-value" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER" spacing="15" styleClass="form-actions">
+                            <children>
+                                <Button onAction="#handleCancel" styleClass="cancel-button" text="Cancel" />
+                                <Button onAction="#handleSaveDraft" styleClass="secondary-button" text="Save as Draft" />
+                                <Button fx:id="submitButton" onAction="#handleSubmit" styleClass="primary-button, large-button" text="Create Reservation" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

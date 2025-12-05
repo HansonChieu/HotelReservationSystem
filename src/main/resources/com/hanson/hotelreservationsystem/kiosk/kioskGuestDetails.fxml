@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Kiosk.KioskGuestDetailsController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="180.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="740.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="180.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="500.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+        <!-- Step Indicator -->
+        <Label text="Step 4 of 5 : Guest Details" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP">
+            <font>
+                <Font size="14.0" />
+            </font>
+            <GridPane.margin>
+                <Insets top="30.0" />
+            </GridPane.margin>
+        </Label>
+
+        <!-- Title Section -->
+        <VBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <children>
+                <Label text="Guest Details">
+                    <font>
+                        <Font size="24.0" />
+                    </font>
+                </Label>
+                <Label text="Please provide your information (* indicates required field)">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </Label>
+            </children>
+        </VBox>
+
+        <!-- Form Section -->
+        <GridPane hgap="20.0" vgap="20.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="350.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="350.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="120.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <padding>
+                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+            </padding>
+            <children>
+                <!-- First Name -->
+                <VBox spacing="5.0">
+                    <children>
+                        <HBox spacing="3.0">
+                            <children>
+                                <Label text="First Name" />
+                                <Label text="*" textFill="RED" />
+                            </children>
+                        </HBox>
+                        <TextField fx:id="firstNameField" onKeyReleased="#handleFirstNameChange" promptText="Enter first name" />
+                        <Label fx:id="firstNameError" textFill="RED" visible="false">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- Last Name -->
+                <VBox spacing="5.0" GridPane.columnIndex="1">
+                    <children>
+                        <HBox spacing="3.0">
+                            <children>
+                                <Label text="Last Name" />
+                                <Label text="*" textFill="RED" />
+                            </children>
+                        </HBox>
+                        <TextField fx:id="lastNameField" onKeyReleased="#handleLastNameChange" promptText="Enter last name" />
+                        <Label fx:id="lastNameError" textFill="RED" visible="false">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- Email -->
+                <VBox spacing="5.0" GridPane.rowIndex="1">
+                    <children>
+                        <HBox spacing="3.0">
+                            <children>
+                                <Label text="Email Address" />
+                                <Label text="*" textFill="RED" />
+                            </children>
+                        </HBox>
+                        <TextField fx:id="emailField" onKeyReleased="#handleEmailChange" promptText="email@example.com" />
+                        <Label fx:id="emailError" textFill="RED" visible="false">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- Phone -->
+                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <children>
+                        <HBox spacing="3.0">
+                            <children>
+                                <Label text="Phone Number" />
+                                <Label text="*" textFill="RED" />
+                            </children>
+                        </HBox>
+                        <TextField fx:id="phoneField" onKeyReleased="#handlePhoneChange" promptText="(555) 123-4567" />
+                        <Label fx:id="phoneError" textFill="RED" visible="false">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- Country -->
+                <VBox spacing="5.0" GridPane.rowIndex="2">
+                    <children>
+                        <HBox spacing="3.0">
+                            <children>
+                                <Label text="Country" />
+                                <Label text="*" textFill="RED" />
+                            </children>
+                        </HBox>
+                        <TextField fx:id="countryField" promptText="Enter country" />
+                        <Label fx:id="countryError" textFill="RED" visible="false">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- ID/Passport (Optional) -->
+                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <children>
+                        <Label text="ID/Passport Number (Optional)" />
+                        <TextField fx:id="idNumberField" promptText="For verification at check-in" />
+                    </children>
+                </VBox>
+
+                <!-- Address -->
+                <VBox spacing="5.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                    <children>
+                        <HBox spacing="3.0">
+                            <children>
+                                <Label text="Street Address" />
+                                <Label text="*" textFill="RED" />
+                            </children>
+                        </HBox>
+                        <TextField fx:id="addressField" promptText="Enter street address" />
+                    </children>
+                </VBox>
+
+                <!-- City and State -->
+                <HBox spacing="20.0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                    <children>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox spacing="3.0">
+                                    <children>
+                                        <Label text="City" />
+                                        <Label text="*" textFill="RED" />
+                                    </children>
+                                </HBox>
+                                <TextField fx:id="cityField" promptText="Enter city" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox spacing="3.0">
+                                    <children>
+                                        <Label text="State/Province" />
+                                        <Label text="*" textFill="RED" />
+                                    </children>
+                                </HBox>
+                                <TextField fx:id="stateField" promptText="Enter state" />
+                            </children>
+                        </VBox>
+                        <VBox prefWidth="150.0" spacing="5.0">
+                            <children>
+                                <HBox spacing="3.0">
+                                    <children>
+                                        <Label text="Postal Code" />
+                                        <Label text="*" textFill="RED" />
+                                    </children>
+                                </HBox>
+                                <TextField fx:id="postalCodeField" promptText="Zip" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Special Requests -->
+                <VBox prefHeight="97.0" prefWidth="701.0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+                    <children>
+                        <Label text="Special Requests (Optional)" />
+                        <TextField fx:id="specialRequestsField" promptText="Any special requests or requirements?" />
+                        <Label text="E.g., early check-in, accessible room, specific floor" textFill="#888888">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+                </VBox>
+
+                <!-- Loyalty Program Section -->
+                <VBox fx:id="loyaltyStatusBox" managed="false" spacing="12.0" style="-fx-padding: 15; -fx-border-color: #ffc107; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-color: linear-gradient(to bottom, #fff9e6 0%, #ffffff 100%); -fx-background-radius: 8;" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="6">
+                    <children>
+                        <Label text="ARC Rewards Loyalty Program" textFill="#856404">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                        </Label>
+
+                        <!-- Existing Member Info -->
+                        <VBox fx:id="loyaltyInfoBox" managed="false" spacing="10.0" visible="false">
+                            <children>
+                                <Label text="Welcome Back, Member!" textFill="#28a745">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <HBox spacing="30.0">
+                                    <children>
+                                        <VBox spacing="4.0">
+                                            <children>
+                                                <Label text="Loyalty Number:" textFill="#6c757d">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label fx:id="loyaltyNumberLabel" text="ARC123456">
+                                                    <font>
+                                                        <Font name="System Bold" size="14.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="4.0">
+                                            <children>
+                                                <Label text="Points Balance:" textFill="#6c757d">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label fx:id="pointsEarnedLabel" text="0 pts">
+                                                    <font>
+                                                        <Font name="System Bold" size="14.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="4.0">
+                                            <children>
+                                                <Label text="Member Since:" textFill="#6c757d">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label fx:id="memberSinceLabel" text="--">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <Label fx:id="bonusPointsLabel" style="-fx-background-color: #d1ecf1; -fx-background-radius: 4px; -fx-padding: 10px;" text="You'll earn points from this reservation!" textFill="#17a2b8">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+
+                        <!-- Registration Prompt -->
+                        <VBox fx:id="registrationPromptBox" managed="false" spacing="10.0" visible="false">
+                            <children>
+                                <Label text="No membership found" textFill="#6c757d">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Would you like to join our ARC Rewards loyalty program?" wrapText="true">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Earn points on every stay | Exclusive member discounts | Free room upgrades | Late checkout" textFill="#495057" wrapText="true">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Label>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#handleLoyaltyRegistration" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-background-radius: 5px;" text="Yes, Register Me">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Button>
+                                        <Button mnemonicParsing="false" onAction="#handleLoyaltyDecline" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10px 20px; -fx-background-radius: 5px;" text="No, Thanks">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </children>
+         <GridPane.margin>
+            <Insets top="20.0" />
+         </GridPane.margin>
+        </GridPane>
+
+        <!-- Privacy Notice and Navigation -->
+        <VBox alignment="CENTER" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <children>
+                <Text fill="#666666" text="Your information is collected solely to complete your reservation and provide guest services. We protect your data with secure systems." textAlignment="CENTER" wrappingWidth="600.0">
+                </Text>
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" prefHeight="40.0" prefWidth="100.0" text="Back">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Button>
+                        <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNext" prefHeight="40.0" prefWidth="100.0" text="Next">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Button>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Footer -->
+        <Label text="ARC Hotel - Self Service Kiosk" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+
+        <!-- Rules and Regulations Button -->
+        <VBox alignment="TOP_CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.rowSpan="2147483647">
+            <children>
+                <Button mnemonicParsing="false" onAction="#handleRulesAndRegulations" text="Rules and Regulations">
+                    <VBox.margin>
+                        <Insets top="20.0" />
+                    </VBox.margin>
+                </Button>
+            </children>
+        </VBox>
+    </children>
+</GridPane>

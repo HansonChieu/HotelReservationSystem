@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.RulesAndRegulationsController">
+    <children>
+        <ScrollPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox spacing="20" style="-fx-padding: 20;">
+                    <Label style="-fx-font-size: 22pt; -fx-font-weight: bold; -fx-text-fill: #3f51b5;" text="Hotel Reservation System: Rules &amp; Regulations" />
+
+                    <Separator />
+
+                    <VBox spacing="10">
+                        <Label style="-fx-font-size: 16pt; -fx-font-weight: bold;" text="Room Occupancy Policies" />
+                        <TextFlow>
+                            <Text text="These limits are strictly enforced by the system across all booking steps. " />
+                        </TextFlow>
+                        <HBox spacing="15">
+                            <VBox style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;">
+                                <Text style="-fx-font-weight: bold;" text="Single Room" />
+                                <Text text="Allows up to two people (adults and children combined)." />
+                            </VBox>
+                            <VBox style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;">
+                                <Text style="-fx-font-weight: bold;" text="Double Room" />
+                                <Text text="Allows up to four people." />
+                            </VBox>
+                            <VBox style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;">
+                                <Text style="-fx-font-weight: bold;" text="Deluxe / Penthouse" />
+                                <Text text="Allows up to two people." />
+                            </VBox>
+                        </HBox>
+                        <Text text="Please ensure your group size (adults + children) respects these limits when choosing rooms." wrappingWidth="600" />
+                    </VBox>
+
+                    <Separator />
+
+                    <VBox spacing="10">
+                        <Label style="-fx-font-size: 16pt; -fx-font-weight: bold;" text="Booking &amp; Payment Process" />
+                        <VBox style="-fx-padding: 5 0;">
+                            <Text text="1. Date Validation: Check-in and check-out dates are immediately validated for minimum stays and overlaps[cite: 46, 193]." wrappingWidth="600" />
+                            <Text text="2. Guest Details: All required fields must be filled and will be validated inline" wrappingWidth="600" />
+                            <Text text="3. Room Choice: If you decide to choose your own rooms, you must first check and follow the above room booking policy." wrappingWidth="600" />
+                            <Text style="-fx-font-weight: bold;" text="4. Finalization: After confirmation on the kiosk, the **billing will be handled at the front desk**." wrappingWidth="600" />
+                        </VBox>
+                    </VBox>
+
+                    <Separator />
+
+                    <VBox spacing="10">
+                        <Label style="-fx-font-size: 16pt; -fx-font-weight: bold;" text="Pricing Information" />
+                        <VBox style="-fx-padding: 5 0;">
+                            <Text text="* Your estimate includes subtotal, tax, add-ons, and any loyalty effects." wrappingWidth="600" />
+                            <Text text="* Prices may be subject to **dynamic pricing**, including separate multipliers for weekends and weekdays, and seasonal multipliers." wrappingWidth="600" />
+                            <Text text="* Add-on services (Wi-Fi, breakfast, etc.) are priced either per night or per reservation." wrappingWidth="600" />
+                        </VBox>
+                    </VBox>
+
+                    <Separator />
+
+                    <VBox spacing="10">
+                        <Label style="-fx-font-size: 16pt; -fx-font-weight: bold;" text="Feedback Submission" />
+                        <Text text="You will be invited to submit feedback (star rating and comments) at the kiosk **only after** your reservation has been checked out and all balances have been settled." wrappingWidth="600" />
+                    </VBox>
+
+                    <Button fx:id="closeButton" onAction="#handleCloseRules" style="-fx-font-size: 14pt; -fx-background-color: #f44336; -fx-text-fill: white;" text="Close">
+                        <VBox.margin><Insets bottom="10" top="10" /></VBox.margin>
+                    </Button>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

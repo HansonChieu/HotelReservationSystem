@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminLoyaltyDashboardController">
+    <top>
+        <VBox styleClass="page-header">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <padding>
+                        <Insets bottom="15" left="20" right="20" top="15" />
+                    </padding>
+                    <children>
+                        <Button onAction="#handleBack" styleClass="back-button" text="← Back" />
+                        <Label styleClass="page-title" text="Loyalty Program Management">
+                            <font>
+                                <Font size="18.0" />
+                            </font></Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleExport" styleClass="secondary-button" text="📥 Export" />
+                        <!-- Renamed to match controller: handleEnrollMember -->
+                        <Button onAction="#handleEnrollMember" styleClass="primary-button" text="+ Enroll Guest" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="20" styleClass="content-area">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+            <children>
+                <!-- Search and Filter Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <children>
+                        <!-- Renamed to match controller: memberSearchField -->
+                        <TextField fx:id="memberSearchField" promptText="Search by guest name, email, or loyalty number" HBox.hgrow="ALWAYS" />
+                        <!-- Added tierFilter to match controller -->
+                        <ComboBox fx:id="tierFilter" onAction="#handleTierFilterChange" prefWidth="150" promptText="All Tiers" />
+                        <!-- Renamed to match controller: handleSearchMember -->
+                        <Button onAction="#handleSearchMember" styleClass="primary-button" text="🔍 Search" />
+                    </children>
+                </HBox>
+
+                <!-- Statistics Cards -->
+                <HBox spacing="20" styleClass="stats-bar">
+                    <children>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card">
+                            <children>
+                                <Label styleClass="stat-label" text="Total Members" />
+                                <Label fx:id="totalMembersLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card bronze">
+                            <children>
+                                <Label styleClass="stat-label" text="🥉 Bronze" />
+                                <Label fx:id="bronzeMembersLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card silver">
+                            <children>
+                                <Label styleClass="stat-label" text="🥈 Silver" />
+                                <Label fx:id="silverMembersLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card gold">
+                            <children>
+                                <Label styleClass="stat-label" text="🥇 Gold" />
+                                <Label fx:id="goldMembersLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5" styleClass="stat-card platinum">
+                            <children>
+                                <Label styleClass="stat-label" text="💎 Platinum" />
+                                <Label fx:id="platinumMembersLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Members Table (ADDED - was missing from original FXML) -->
+                <VBox spacing="15" styleClass="form-section" VBox.vgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="section-header" text="👥 Loyalty Members" />
+                        <Separator />
+                        <TableView fx:id="membersTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="loyaltyNumberColumn" prefWidth="120" text="Loyalty #" />
+                                <TableColumn fx:id="memberNameColumn" prefWidth="150" text="Member Name" />
+                                <TableColumn fx:id="memberEmailColumn" prefWidth="180" text="Email" />
+                                <TableColumn fx:id="memberPhoneColumn" prefWidth="120" text="Phone" />
+                                <TableColumn fx:id="pointsBalanceColumn" prefWidth="100" text="Points" />
+                                <TableColumn fx:id="tierColumn" prefWidth="100" text="Tier" />
+                                <TableColumn fx:id="memberSinceColumn" prefWidth="110" text="Member Since" />
+                                <TableColumn fx:id="statusColumn" prefWidth="80" text="Status" />
+                            </columns>
+                            <placeholder>
+                                <VBox alignment="CENTER" spacing="10">
+                                    <children>
+                                        <Label styleClass="empty-icon" text="⭐" />
+                                        <Label styleClass="empty-text" text="No loyalty members found" />
+                                        <Label styleClass="empty-hint" text="Search for a member or enroll a new one" />
+                                    </children>
+                                </VBox>
+                            </placeholder>
+                        </TableView>
+                    </children>
+                </VBox>
+
+                <!-- Member Details Panel (shown when member is selected) -->
+                <VBox fx:id="guestDetailsSection" spacing="15" styleClass="form-section" visible="false">
+                    <children>
+                        <Label styleClass="section-header" text="👤 Member Details" />
+                        <Separator />
+                        <GridPane hgap="30" vgap="12">
+                            <children>
+                                <Label styleClass="detail-label" text="Guest Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label fx:id="guestNameLabel" styleClass="detail-value" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label styleClass="detail-label" text="Loyalty Number:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                <Label fx:id="loyaltyNumberLabel" styleClass="detail-value" text="-" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                                <Label styleClass="detail-label" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Label fx:id="memberEmailLabel" styleClass="detail-value" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label styleClass="detail-label" text="Phone:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <Label fx:id="memberPhoneLabel" styleClass="detail-value" text="-" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                                <Label styleClass="detail-label" text="Member Since:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label fx:id="memberSinceLabel" styleClass="detail-value" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label styleClass="detail-label" text="Current Tier:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <Label fx:id="memberTierLabel" styleClass="detail-value tier-badge" text="-" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                                <Label styleClass="detail-label" text="Current Points:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <Label fx:id="currentPointsLabel" styleClass="detail-value points-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <Label styleClass="detail-label" text="Points Value:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                <Label fx:id="pointsValueLabel" styleClass="detail-value" text="\$0.00" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                            </children>
+                            <columnConstraints>
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                                <ColumnConstraints />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
+                        </GridPane>
+                        <HBox spacing="15">
+                            <children>
+                                <Button onAction="#handleAddPoints" styleClass="primary-button" text="➕ Add Points" />
+                                <Button onAction="#handleDeductPoints" styleClass="secondary-button" text="➖ Deduct Points" />
+                                <!-- Renamed to match controller: handleViewDetails -->
+                                <Button onAction="#handleViewDetails" styleClass="secondary-button" text="📊 View History" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- Transactions Table (renamed to match controller) -->
+                <VBox spacing="15" styleClass="form-section">
+                    <children>
+                        <Label styleClass="section-header" text="📈 Points Activity" />
+                        <Separator />
+                        <!-- Renamed to match controller: transactionsTable -->
+                        <TableView fx:id="transactionsTable" prefHeight="200" styleClass="data-table">
+                            <columns>
+                                <TableColumn fx:id="dateColumn" prefWidth="120" text="Date" />
+                                <TableColumn fx:id="typeColumn" prefWidth="100" text="Type" />
+                                <TableColumn fx:id="descriptionColumn" prefWidth="250" text="Description" />
+                                <TableColumn fx:id="pointsColumn" prefWidth="100" text="Points" />
+                                <TableColumn fx:id="balanceColumn" prefWidth="100" text="Balance" />
+                            </columns>
+                            <placeholder>
+                                <VBox alignment="CENTER" spacing="10">
+                                    <children>
+                                        <Label styleClass="empty-text" text="Select a member to view their transaction history" />
+                                    </children>
+                                </VBox>
+                            </placeholder>
+                        </TableView>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

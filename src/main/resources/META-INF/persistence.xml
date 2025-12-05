@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+             https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+
+    <!--
+        Hotel Reservation System - JPA Configuration
+
+        Per assignment requirements:
+        - "Entities must be annotated with JPA, including identifiers and relationships"
+        - "EntityManagerFactory must be created once and treated as a singleton"
+        - "EntityManager must be created per transaction or unit of work"
+    -->
+
+    <persistence-unit name="HotelReservationPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Entity Classes -->
+        <class>com.hanson.hotelreservationsystem.model.BaseEntity</class>
+        <class>com.hanson.hotelreservationsystem.model.Room</class>
+        <class>com.hanson.hotelreservationsystem.model.Guest</class>
+        <class>com.hanson.hotelreservationsystem.model.Reservation</class>
+        <class>com.hanson.hotelreservationsystem.model.ReservationRoom</class>
+        <class>com.hanson.hotelreservationsystem.model.ReservationAddOn</class>
+        <class>com.hanson.hotelreservationsystem.model.Payment</class>
+        <class>com.hanson.hotelreservationsystem.model.Feedback</class>
+        <class>com.hanson.hotelreservationsystem.model.LoyaltyAccount</class>
+        <class>com.hanson.hotelreservationsystem.model.LoyaltyTransaction</class>
+        <class>com.hanson.hotelreservationsystem.model.Admin</class>
+        <class>com.hanson.hotelreservationsystem.model.WaitlistEntry</class>
+
+        <!-- Exclude unlisted classes -->
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <!--
+                Database Connection - Using H2 embedded database
+                The database file will be created in ./data/hoteldb
+                AUTO_SERVER=TRUE allows multiple connections
+            -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:./data/hoteldb;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1"/>
+            <property name="jakarta.persistence.jdbc.user" value="sa"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+
+            <!--
+                Hibernate Settings
+                - dialect: H2 database dialect
+                - hbm2ddl.auto: 'update' will create/update tables automatically
+                - show_sql: shows SQL queries in console (helpful for debugging)
+                - format_sql: formats SQL for readability
+            -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+
+            <!-- Connection Pool Settings -->
+            <property name="hibernate.hikari.minimumIdle" value="2"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="10"/>
+            <property name="hibernate.hikari.idleTimeout" value="30000"/>
+
+            <!-- Batch settings for better performance -->
+            <property name="hibernate.jdbc.batch_size" value="20"/>
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+
+            <!-- Generate statistics (optional, for debugging) -->
+            <property name="hibernate.generate_statistics" value="false"/>
+        </properties>
+    </persistence-unit>
+</persistence>

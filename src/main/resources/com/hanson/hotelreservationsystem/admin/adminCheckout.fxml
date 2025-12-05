@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminCheckoutController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="form-header">
+            <padding>
+                <Insets bottom="15" left="20" right="20" top="15" />
+            </padding>
+            <children>
+                <Button onAction="#handleBack" styleClass="back-button" text="← Back" />
+                <Label styleClass="form-title" text="Check-Out Process">
+                    <font>
+                        <Font size="18.0" />
+                    </font></Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="reservationIdLabel" styleClass="reservation-id" text="Res #: HRS-001234" />
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="form-scroll">
+            <content>
+                <VBox spacing="25" styleClass="form-content">
+                    <padding>
+                        <Insets bottom="25" left="30" right="30" top="25" />
+                    </padding>
+                    <children>
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="👤 Guest Information" />
+                                <Separator />
+                                <GridPane hgap="20" vgap="10">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="guestNameLabel" styleClass="detail-value" text="John Doe" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label styleClass="detail-label" text="Room(s):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="roomsLabel" styleClass="detail-value" text="Single Room #201" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label styleClass="detail-label" text="Stay Period:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="stayPeriodLabel" styleClass="detail-value" text="Dec 15-18, 2025 (3 nights)" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    </children>
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                </GridPane>
+                            </children>
+                        </VBox>
+                        <VBox spacing="15" styleClass="form-section balance-section">
+                            <children>
+                                <Label styleClass="section-header" text="💰 Final Bill" />
+                                <Separator />
+                                <GridPane hgap="30" vgap="12">
+                                    <children>
+                                        <Label styleClass="bill-label" text="Room Charges:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="roomChargesLabel" styleClass="bill-value" text="\$360.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label styleClass="bill-label" text="Services:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="servicesLabel" styleClass="bill-value" text="\$45.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label styleClass="bill-label" text="Tax:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="taxLabel" styleClass="bill-value" text="\$52.65" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                        <Label styleClass="bill-label" text="Discounts:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <HBox alignment="CENTER_RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <children>
+                                                <Label fx:id="discountReasonLabel" styleClass="discount-reason" text="(Admin Comp)" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="discountsLabel" styleClass="bill-value discount" text="-\$20.00" />
+                                            </children>
+                                        </HBox>
+
+                                        <Separator GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                                        <Label styleClass="bill-label total-label" text="Total:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <Label fx:id="totalLabel" styleClass="bill-value total-value" text="\$437.65" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <Label styleClass="bill-label" text="Paid:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <Label fx:id="paidLabel" styleClass="bill-value paid" text="\$437.65" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="7">
+                                            <children>
+                                                <CheckBox fx:id="useLoyaltyPointsCheck" onAction="#handleLoyaltyPointsToggle" text="Use Loyalty Points for Payment" />
+                                                <Label fx:id="availablePointsLabel" styleClass="detail-info" text="(Available: 1500 Points)" />
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="5" top="5" />
+                                            </padding>
+                                        </HBox>
+
+                                        <Label styleClass="bill-label" text="Points Applied:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                        <Label fx:id="pointsAppliedLabel" styleClass="bill-value paid" text="-\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                                        <Separator styleClass="outstanding-separator" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="9" />
+
+                                        <Label styleClass="bill-label outstanding-label" text="Outstanding:" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                                        <Label fx:id="outstandingLabel" styleClass="bill-value outstanding" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                                    </children>
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                </GridPane>
+                            </children>
+                        </VBox>
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="📋 Check-Out Checklist" />
+                                <Separator />
+                                <VBox spacing="10">
+                                    <children>
+                                        <CheckBox fx:id="balancePaidCheck" disable="true" selected="false" text="✓ Balance fully paid" />
+                                        <CheckBox fx:id="roomInspectedCheck" onAction="#handleChecklistChange" text="Room inspected for damages" />
+                                        <CheckBox fx:id="keyReturnedCheck" onAction="#handleChecklistChange" text="Room key returned" />
+                                        <CheckBox fx:id="minibarCheck" onAction="#handleChecklistChange" text="Minibar checked" />
+                                        <CheckBox fx:id="feedbackInvitedCheck" onAction="#handleChecklistChange" text="Guest invited to provide feedback" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                        <VBox spacing="10" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="📝 Check-Out Notes" />
+                                <Separator />
+                                <TextArea fx:id="checkoutNotesArea" prefRowCount="3" promptText="Add any notes about check-out..." styleClass="form-textarea" wrapText="true" />
+                            </children>
+                        </VBox>
+                        <HBox alignment="CENTER" spacing="15" styleClass="form-actions">
+                            <children>
+                                <Button onAction="#handleCancel" styleClass="cancel-button" text="Cancel" />
+                                <Button fx:id="checkoutButton" disable="true" onAction="#handleCheckout" styleClass="primary-button large-button" text="✓ Complete Check-Out" />
+                                <Button onAction="#handlePrintReceipt" styleClass="secondary-button" text="🖨 Print Receipt" />
+                                <Button onAction="#handleEmailReceipt" styleClass="secondary-button" text="📧 Email Receipt" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

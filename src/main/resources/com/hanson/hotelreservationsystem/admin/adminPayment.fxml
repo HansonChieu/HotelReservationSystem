@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminPaymentController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="form-header">
+            <padding>
+                <Insets bottom="15" left="20" right="20" top="15" />
+            </padding>
+            <children>
+                <Button onAction="#handleCancel" styleClass="back-button" text="← Back" />
+                <Label styleClass="form-title" text="Process Payment">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="confirmationLabel" styleClass="reservation-id" text="Res #: HRS-001234" />
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="form-scroll">
+            <content>
+                <VBox spacing="25" styleClass="form-content">
+                    <padding>
+                        <Insets bottom="25" left="30" right="30" top="25" />
+                    </padding>
+                    <children>
+                        <!-- Reservation Summary Section -->
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="📋 Reservation Summary" />
+                                <Separator />
+                                <GridPane hgap="20" vgap="10">
+                                    <children>
+                                        <Label styleClass="detail-label" text="Guest:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="guestNameLabel" styleClass="detail-value" text="John Doe" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label styleClass="detail-label" text="Dates:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="datesLabel" styleClass="detail-value" text="Dec 15-18, 2025 (3 nights)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label styleClass="detail-label" text="Room(s):" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="roomsLabel" styleClass="detail-value" text="1 Single Room" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    </children>
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <!-- Balance Information Section -->
+                        <VBox spacing="15" styleClass="form-section balance-section">
+                            <children>
+                                <Label styleClass="section-header" text="💰 Balance Information" />
+                                <Separator />
+                                <GridPane hgap="30" styleClass="balance-grid" vgap="12">
+                                    <children>
+                                        <Label styleClass="balance-label" text="Total Amount:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="totalAmountLabel" styleClass="balance-value" text="\$457.65" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label styleClass="balance-label" text="Paid Amount:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="paidAmountLabel" styleClass="balance-value paid" text="\$100.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Separator GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                                        <Label styleClass="balance-label outstanding-label" text="Outstanding Balance:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <Label fx:id="outstandingLabel" styleClass="balance-value outstanding" text="\$357.65" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    </children>
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <!-- Payment Method Section - Using ToggleButtons -->
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="💳 Payment Method" />
+                                <Separator />
+                                <HBox spacing="20">
+                                    <children>
+                                        <!-- Changed to match controller naming: cashRadio, cardRadio, loyaltyRadio -->
+                                        <!-- Note: Controller should use ToggleButton type, not RadioButton -->
+                                        <ToggleButton fx:id="cashToggle" onAction="#handlePaymentMethodChange" styleClass="payment-method-toggle" text="💵 Cash">
+                                            <toggleGroup>
+                                                <ToggleGroup fx:id="paymentMethodGroup" />
+                                            </toggleGroup>
+                                        </ToggleButton>
+                                        <ToggleButton fx:id="cardToggle" onAction="#handlePaymentMethodChange" styleClass="payment-method-toggle" text="💳 Card" toggleGroup="$paymentMethodGroup" />
+                                        <ToggleButton fx:id="loyaltyToggle" onAction="#handlePaymentMethodChange" styleClass="payment-method-toggle" text="⭐ Loyalty Points" toggleGroup="$paymentMethodGroup" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Payment Details Section -->
+                        <VBox spacing="15" styleClass="form-section">
+                            <children>
+                                <Label styleClass="section-header" text="💵 Payment Details" />
+                                <Separator />
+                                <VBox spacing="8">
+                                    <children>
+                                        <HBox spacing="5">
+                                            <children>
+                                                <Label styleClass="field-label" text="Payment Amount" />
+                                                <Label styleClass="required" text="*" />
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" spacing="15">
+                                            <children>
+                                                <TextField fx:id="paymentAmountField" onKeyReleased="#handleAmountChange" prefWidth="200" promptText="0.00" styleClass="form-field" />
+                                                <Button onAction="#handlePayFullBalance" styleClass="secondary-button small-button" text="Pay Full Balance" />
+                                            </children>
+                                        </HBox>
+                                        <!-- Renamed to match controller: errorLabel -->
+                                        <Label fx:id="errorLabel" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Card Details Section - renamed to match controller: cardSection -->
+                                <VBox fx:id="cardSection" managed="false" spacing="12" visible="false">
+                                    <children>
+                                        <GridPane hgap="15" vgap="12">
+                                            <children>
+                                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="Card Number" />
+                                                        <TextField fx:id="cardNumberField" promptText="1234 5678 9012 3456" styleClass="form-field" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="Cardholder Name" />
+                                                        <TextField fx:id="cardholderField" promptText="John Doe" styleClass="form-field" />
+                                                    </children>
+                                                </VBox>
+                                                <HBox spacing="15" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                                    <children>
+                                                        <VBox spacing="5">
+                                                            <children>
+                                                                <Label styleClass="field-label" text="Expiry" />
+                                                                <!-- Renamed to match controller: cardExpiryField -->
+                                                                <TextField fx:id="cardExpiryField" prefWidth="100" promptText="MM/YY" styleClass="form-field" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox spacing="5">
+                                                            <children>
+                                                                <Label styleClass="field-label" text="CVV" />
+                                                                <!-- Renamed to match controller: cardCvvField -->
+                                                                <PasswordField fx:id="cardCvvField" prefWidth="100" promptText="123" styleClass="form-field" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox spacing="5">
+                                                            <children>
+                                                                <Label styleClass="field-label" text="Card Type" />
+                                                                <ComboBox fx:id="cardTypeCombo" prefWidth="120" promptText="Select" styleClass="form-field" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                            <columnConstraints>
+                                                <ColumnConstraints />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                            </rowConstraints>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- Loyalty Details Section - renamed to match controller: loyaltySection -->
+                                <VBox fx:id="loyaltySection" managed="false" spacing="12" visible="false">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="15">
+                                            <children>
+                                                <Label styleClass="field-label" text="Available Points:" />
+                                                <Label fx:id="availablePointsLabel" styleClass="info-value" text="5,000" />
+                                                <Label styleClass="field-label" text="=" />
+                                                <Label fx:id="pointsValueLabel" styleClass="info-value" text="\$50.00" />
+                                            </children>
+                                        </HBox>
+                                        <VBox spacing="5">
+                                            <children>
+                                                <Label styleClass="field-label" text="Points to Redeem" />
+                                                <Spinner fx:id="pointsSpinner" editable="true" prefWidth="150" />
+                                                <!-- Renamed to match controller: pointsDiscountLabel -->
+                                                <Label fx:id="pointsDiscountLabel" styleClass="info-label" text="Redemption: \$0.00" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Payment Type -->
+                                <VBox spacing="8">
+                                    <children>
+                                        <Label styleClass="field-label" text="Payment Type" />
+                                        <ComboBox fx:id="paymentTypeCombo" prefWidth="250" promptText="Select payment type" styleClass="form-field" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Payment Notes - renamed to match controller: notesArea -->
+                                <VBox spacing="5">
+                                    <children>
+                                        <Label styleClass="field-label" text="Payment Notes (Optional)" />
+                                        <TextArea fx:id="notesArea" prefRowCount="2" promptText="Add any notes about this payment..." styleClass="form-textarea" wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Payment Summary Section -->
+                        <VBox spacing="15" styleClass="form-section summary-section">
+                            <children>
+                                <Label styleClass="section-header" text="📊 Payment Summary" />
+                                <Separator />
+                                <GridPane hgap="20" vgap="10">
+                                    <children>
+                                        <Label styleClass="summary-label" text="Payment Amount:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="summaryPaymentLabel" styleClass="summary-value" text="\$0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label styleClass="summary-label" text="Current Balance:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="summaryBalanceLabel" styleClass="summary-value" text="\$357.65" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Separator GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                                        <Label styleClass="summary-label remaining-label" text="Remaining Balance:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <Label fx:id="remainingBalanceLabel" styleClass="summary-value remaining-value" text="\$357.65" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    </children>
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <!-- Action Buttons -->
+                        <HBox alignment="CENTER" spacing="15" styleClass="form-actions">
+                            <children>
+                                <Button onAction="#handleCancel" styleClass="cancel-button" text="Cancel" />
+                                <Button fx:id="processButton" disable="true" onAction="#handleProcessPayment" styleClass="primary-button large-button" text="✓ Process Payment" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

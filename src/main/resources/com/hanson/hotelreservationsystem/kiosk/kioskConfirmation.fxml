@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane prefHeight="900.0" prefWidth="800.0" style="-fx-background-color: #f5f5f5;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.hanson.hotelreservationsystem.controller.Kiosk.KioskConfirmationController">
+    <top>
+        <VBox alignment="BOTTOM_CENTER" prefHeight="100.0" style="-fx-padding: 20;">
+            <children>
+                <Label text="Booking Confirmed!" textFill="#4CAF50">
+                    <font>
+                        <Font name="System Bold" size="36.0" />
+                    </font>
+                </Label>
+            </children>
+        </VBox>
+    </top>
+    <bottom>
+        <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #333333; -fx-padding: 15;">
+            <children>
+                <Label style="-fx-text-fill: white; -fx-font-size: 12px;" text="ARC Hotel - Your Comfort is Our Priority" />
+            </children>
+        </HBox>
+    </bottom>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox alignment="TOP_CENTER" style="-fx-background-color: #f5f5f5;">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <VBox alignment="CENTER" maxWidth="750.0" spacing="30.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                            <padding>
+                                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                            </padding>
+                            <children>
+                                <!-- Success Message -->
+                                <VBox alignment="CENTER" spacing="15.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Your reservation has been confirmed!" />
+                                        <Label style="-fx-font-size: 16px; -fx-text-fill: #666666;" text="We look forward to welcoming you!" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Confirmation Number -->
+                                <VBox alignment="CENTER" spacing="10.0" style="-fx-border-color: #4CAF50; -fx-border-radius: 8; -fx-border-width: 2; -fx-padding: 20;">
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Confirmation Number" />
+                                        <Label fx:id="confirmationNumberLabel1" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4CAF50; -fx-font-family: 'Courier New';" text="HRS-PENDING" />
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #888888;" text="Please save this number for your records" />
+                                    </children>
+                                </VBox>
+
+                                <Separator prefWidth="500.0" />
+
+                                <!-- Reservation Summary -->
+                                <VBox spacing="20.0" style="-fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-padding: 20;">
+                                    <children>
+                                        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Reservation Summary" />
+
+                                        <!-- Dates -->
+                                        <HBox alignment="CENTER" spacing="40.0">
+                                            <children>
+                                                <VBox alignment="CENTER" spacing="8.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Check-In" />
+                                                        <Label fx:id="checkInSummary1" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="--" />
+                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #888888;" text="4:00 PM" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="CENTER" spacing="8.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 24px;" text="→" />
+                                                        <Label fx:id="nightsSummary1" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="-- Nights" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="CENTER" spacing="8.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Check-Out" />
+                                                        <Label fx:id="checkOutSummary1" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="--" />
+                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #888888;" text="12:00 PM" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <Separator />
+
+                                        <!-- Guests and Rooms -->
+                                        <HBox alignment="CENTER" spacing="50.0">
+                                            <children>
+                                                <VBox alignment="CENTER" spacing="5.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Guests" />
+                                                        <Label fx:id="guestsSummary1" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="--" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="CENTER" spacing="5.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Rooms" />
+                                                        <Label fx:id="roomsSummary1" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="--" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="CENTER" spacing="5.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Total" />
+                                                        <Label fx:id="totalSummary1" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="\$0.00" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Next Steps -->
+                                <VBox spacing="15.0" style="-fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-padding: 20;">
+                                    <children>
+                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Next Steps:" />
+                                        <VBox spacing="10.0">
+                                            <children>
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="1." />
+                                                        <Text style="-fx-font-size: 14px;" fill="#333333" text="Please proceed to the front desk with your confirmation number" wrappingWidth="550.0" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="2." />
+                                                        <Text style="-fx-font-size: 14px;" fill="#333333" text="Payment will be processed at check-in. Please have a valid credit card ready" wrappingWidth="550.0" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="3." />
+                                                        <Text style="-fx-font-size: 14px;" fill="#333333" text="A confirmation email has been sent to your email address" wrappingWidth="550.0" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="4." />
+                                                        <Text style="-fx-font-size: 14px;" fill="#333333" text="For any changes or cancellations, please contact us at (647) 123-4567" wrappingWidth="550.0" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Contact Info -->
+                                <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #f5f5f5; -fx-padding: 20; -fx-background-radius: 10;">
+                                    <children>
+                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Need Assistance?" />
+                                        <HBox alignment="CENTER" spacing="40.0">
+                                            <children>
+                                                <VBox alignment="CENTER" spacing="5.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #666666;" text="Phone" />
+                                                        <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0066cc;" text="(647) 123-4567" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="CENTER" spacing="5.0">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #666666;" text="Email" />
+                                                        <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0066cc;" text="info@archotel.com" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Action Buttons -->
+                                <HBox alignment="CENTER" spacing="20.0">
+                                    <children>
+                                        <Button onAction="#handlePrintReceipt" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 12 25; -fx-background-radius: 5;" text="Print Receipt">
+                                            <font>
+                                                <Font size="14.0" />
+                                            </font>
+                                        </Button>
+                                        <Button onAction="#handleDone" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 12 30; -fx-background-radius: 5; -fx-font-weight: bold;" text="Done">
+                                            <font>
+                                                <Font size="16.0" />
+                                            </font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+
+                                <!-- Thank You Message -->
+                                <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20;">
+                                    <children>
+                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Thank you for choosing ARC Hotel!" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="We wish you a pleasant stay!" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

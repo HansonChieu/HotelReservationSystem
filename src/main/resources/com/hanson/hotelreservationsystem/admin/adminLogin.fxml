@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane styleClass="login-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminLoginController">
+   <left>
+      <VBox alignment="CENTER" prefHeight="612.0" prefWidth="234.0" spacing="20" styleClass="branding-panel">
+         <padding>
+            <Insets bottom="50" left="50" right="50" top="50" />
+         </padding>
+         <children>
+            <Label styleClass="hotel-name" text="ARC Hotel" />
+            <Label styleClass="portal-subtitle" text="Administrative Portal" />
+            <VBox alignment="CENTER" spacing="10" styleClass="info-panel">
+               <children>
+                  <Label styleClass="feature-text" text="🏨 Manage Reservations" />
+                  <Label styleClass="feature-text" text="💳 Process Payments" />
+                  <Label styleClass="feature-text" text="📊 Generate Reports" />
+                  <Label styleClass="feature-text" text="👥 Guest Management" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox alignment="CENTER" prefHeight="591.0" prefWidth="470.0" spacing="25" styleClass="login-panel">
+         <padding>
+            <Insets bottom="60" left="60" right="60" top="60" />
+         </padding>
+         <children>
+            <VBox alignment="CENTER" spacing="10">
+               <children>
+                  <Label styleClass="login-title" text="Welcome Back">
+                     <font>
+                        <Font size="24.0" />
+                     </font></Label>
+                  <Text styleClass="login-subtitle" text="Please sign in to continue" />
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefWidth="350" spacing="20" styleClass="login-form">
+               <children>
+                  <VBox spacing="8">
+                     <children>
+                        <Label styleClass="field-label" text="Username" />
+                        <TextField fx:id="usernameField" onAction="#handleLogin" promptText="Enter your username" styleClass="login-field" />
+                        <Label fx:id="usernameError" styleClass="error-label" visible="false" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="8">
+                     <children>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                              <Label styleClass="field-label" text="Password" HBox.hgrow="ALWAYS" />
+                              <Button onAction="#handleForgotPassword" styleClass="link-button, forgot-button" text="Forgot?">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin></Button>
+                           </children>
+                        </HBox>
+                        <PasswordField fx:id="passwordField" onAction="#handleLogin" promptText="Enter your password" styleClass="login-field" />
+                        <Label fx:id="passwordError" styleClass="error-label" visible="false" />
+                     </children>
+                  </VBox>
+                  <Label fx:id="loginError" styleClass="error-label, general-error" visible="false" wrapText="true" />
+                  <Button fx:id="loginButton" defaultButton="true" onAction="#handleLogin" prefHeight="40.0" prefWidth="70.0" styleClass="primary-button, large-button, login-button" text="Sign In" translateY="-20.0" />
+                  <VBox alignment="CENTER" spacing="10">
+                     <children>
+                        <Label styleClass="help-text" text="Need help?" />
+                        <HBox alignment="CENTER" spacing="10">
+                           <children>
+                              <Button onAction="#handleReturnToKiosk" styleClass="link-button" text="Return to Kiosk" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <VBox spacing="10" styleClass="role-info">
+               <children>
+                  <Label styleClass="info-header" text="User Roles:" />
+                  <Text styleClass="info-text" text="• Admin: Standard administrative privileges&#10;• Manager: Advanced privileges including higher discount limits" wrappingWidth="350" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER" spacing="15" styleClass="login-footer">
+         <padding>
+            <Insets bottom="15" top="15" />
+         </padding>
+         <children>
+            <Label styleClass="footer-text" text="© 2025 Grand Plaza Hotel" />
+            <Label styleClass="separator-text" text="|" />
+            <Label styleClass="footer-text" text="All Rights Reserved" />
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>

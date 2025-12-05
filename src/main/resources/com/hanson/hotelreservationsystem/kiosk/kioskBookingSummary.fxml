@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane style="-fx-background-color: #f5f5f5;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.hanson.hotelreservationsystem.controller.Kiosk.KioskBookingSummaryController">
+    <top>
+        <VBox alignment="CENTER" style="-fx-padding: 20;">
+            <children>
+                <Label text="Review Your Booking">
+                    <font>
+                        <Font name="System Bold" size="36.0" />
+                    </font>
+                </Label>
+                <Label text="Please review all details before confirming" />
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox spacing="25.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <padding>
+                        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <!-- Guest Information Section -->
+                        <VBox spacing="15.0" style="-fx-background-color: #fafafa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;">
+                            <children>
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Guest Information" />
+                                <Separator />
+                                <GridPane hgap="30.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints minWidth="100.0" prefWidth="150.0" />
+                                        <ColumnConstraints minWidth="200.0" prefWidth="400.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Name:" />
+                                        <Label fx:id="guestNameLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Email:" GridPane.rowIndex="1" />
+                                        <Label fx:id="guestEmailLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Phone:" GridPane.rowIndex="2" />
+                                        <Label fx:id="guestPhoneLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Country:" GridPane.rowIndex="3" />
+                                        <Label fx:id="guestCountryLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    </children>
+                                </GridPane>
+                                <Button onAction="#handleEditGuest" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 8 20; -fx-background-radius: 5;" text="Edit">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+
+                        <!-- Reservation Details Section -->
+                        <VBox spacing="15.0" style="-fx-background-color: #fafafa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;">
+                            <children>
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Reservation Details" />
+                                <Separator />
+                                <GridPane hgap="30.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints minWidth="100.0" prefWidth="150.0" />
+                                        <ColumnConstraints minWidth="200.0" prefWidth="400.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Check-In:" />
+                                        <Label fx:id="checkInLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Check-Out:" GridPane.rowIndex="1" />
+                                        <Label fx:id="checkOutLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Nights:" GridPane.rowIndex="2" />
+                                        <Label fx:id="nightsLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Guests:" GridPane.rowIndex="3" />
+                                        <Label fx:id="guestsLabel" style="-fx-font-size: 14px; -fx-text-fill: #333333;" text="--" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    </children>
+                                </GridPane>
+                                <Button onAction="#handleEditDates" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 8 20; -fx-background-radius: 5;" text="Edit">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+
+                        <!-- Selected Rooms Section -->
+                        <VBox spacing="15.0" style="-fx-background-color: #fafafa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;">
+                            <children>
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Selected Rooms" />
+                                <Separator />
+                                <VBox fx:id="roomsListBox" spacing="10.0" />
+                                <Button onAction="#handleEditRooms" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 8 20; -fx-background-radius: 5;" text="Edit">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+
+                        <!-- Add-On Services Section -->
+                        <VBox spacing="15.0" style="-fx-background-color: #fafafa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;">
+                            <children>
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Add-On Services" />
+                                <Separator />
+                                <VBox fx:id="servicesListBox" spacing="5.0" />
+                                <Button onAction="#handleEditServices" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 8 20; -fx-background-radius: 5;" text="Edit">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+
+                        <!-- Pricing Summary Section -->
+                        <VBox spacing="15.0" style="-fx-background-color: #e8f5e9; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #c8e6c9; -fx-border-radius: 10;">
+                            <children>
+                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Price Summary" />
+                                <Separator />
+
+                                <!-- Room Charges -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                            <children>
+                                                <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Room Charges:" HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="roomChargesLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="\$0.00" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="roomBreakdownLabel" style="-fx-font-size: 12px; -fx-text-fill: #888888;" text="--" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Add-On Services Charges -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                            <children>
+                                                <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Add-On Services:" HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="servicesChargesLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="\$0.00" />
+                                            </children>
+                                        </HBox>
+                                        <VBox fx:id="servicesBreakdownBox" spacing="3.0" />
+                                    </children>
+                                </VBox>
+
+                                <Separator />
+
+                                <!-- Subtotal -->
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 15px; -fx-text-fill: #666666; -fx-font-weight: bold;" text="Subtotal:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="subtotalLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="\$0.00" />
+                                    </children>
+                                </HBox>
+
+                                <!-- Tax -->
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #666666;" text="Tax (13%):" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="taxLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="\$0.00" />
+                                    </children>
+                                </HBox>
+
+                                <!-- Loyalty Discount (hidden by default) -->
+                                <HBox fx:id="loyaltyDiscountRow" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-text-fill: #4CAF50; -fx-font-weight: bold;" text="Loyalty Discount:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="loyaltyDiscountLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="-$0.00" />
+                                    </children>
+                                </HBox>
+
+                                <Separator />
+
+                                <!-- Total -->
+                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
+                                    <children>
+                                        <Label style="-fx-font-size: 18px; -fx-text-fill: #333333; -fx-font-weight: bold;" text="Total Amount:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="totalLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="\$0.00" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Important Notice -->
+                        <VBox spacing="10.0">
+                            <children>
+                                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Important Notice:" />
+                                <Text style="-fx-font-size: 13px;" fill="#555555"
+                                      text="• Payment will be processed at the front desk upon arrival&#10;• A valid credit card is required to guarantee your reservation&#10;• Cancellation policy: Free cancellation up to 48 hours before check-in&#10;• No-show charges may apply"
+                                      wrappingWidth="700.0" />
+                            </children>
+                        </VBox>
+
+                        <!-- Terms Agreement -->
+                        <VBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <Text style="-fx-font-size: 12px;" fill="#666666" text="By confirming this booking, you agree to our Terms and Conditions and Privacy Policy" textAlignment="CENTER" wrappingWidth="700.0" />
+                                <HBox alignment="CENTER" spacing="15.0">
+                                    <children>
+                                        <Button onAction="#handleViewTerms" style="-fx-background-color: transparent; -fx-text-fill: #1976d2; -fx-underline: true;" text="View Terms">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Button>
+                                        <Label style="-fx-text-fill: #cccccc;" text="|" />
+                                        <Button onAction="#handleViewPrivacy" style="-fx-background-color: transparent; -fx-text-fill: #1976d2; -fx-underline: true;" text="Privacy Policy">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Navigation Buttons -->
+                        <HBox alignment="CENTER" spacing="20.0" style="-fx-padding: 20 0 0 0;">
+                            <children>
+                                <Button onAction="#handleBack" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 12 25; -fx-background-radius: 5;" text="Back">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Button>
+                                <Button onAction="#handleCancel" style="-fx-background-color: #ffcdd2; -fx-text-fill: #c62828; -fx-padding: 12 25; -fx-background-radius: 5;" text="Cancel Booking">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Button>
+                                <Button fx:id="confirmButton" onAction="#handleConfirm" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 12 30; -fx-background-radius: 5; -fx-font-weight: bold;" text="Confirm Booking">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+    <right>
+        <VBox alignment="TOP_CENTER" spacing="15.0" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 0 1;">
+            <padding>
+                <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+            </padding>
+            <children>
+                <Button fx:id="rulesButton" onAction="#handleShowRules" text="Rules &amp; Regulations">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Button>
+            </children>
+        </VBox>
+    </right>
+    <bottom>
+        <HBox alignment="CENTER" spacing="20.0" style="-fx-padding: 15;">
+            <children>
+                <Label text="ARC Hotel - Self Service Kiosk" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

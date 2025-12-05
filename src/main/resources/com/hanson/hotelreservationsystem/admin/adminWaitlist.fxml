@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminWaitlistController">
+   <top>
+      <VBox styleClass="page-header">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="20">
+               <padding>
+                  <Insets bottom="15" left="20" right="20" top="15" />
+               </padding>
+               <children>
+                  <Label styleClass="page-title" text="Waitlist Management">
+                     <font>
+                        <Font size="18.0" />
+                     </font></Label>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button onAction="#handleAddToWaitlist" styleClass="primary-button" text="+ Add to Waitlist" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <VBox spacing="20" styleClass="content-area">
+         <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+         </padding>
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="filter-bar">
+               <children>
+                  <Label styleClass="filter-label" text="Filter by:" />
+                  <ComboBox fx:id="roomTypeFilter" onAction="#handleFilterChange" prefWidth="150" promptText="Room Type" />
+                  <DatePicker fx:id="dateFilter" onAction="#handleFilterChange" prefWidth="150" promptText="Date" />
+                  <ComboBox fx:id="statusFilter" onAction="#handleFilterChange" prefWidth="150" promptText="Status" />
+                  <Region HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <TableView fx:id="waitlistTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="idColumn" prefWidth="60" text="ID" />
+                  <TableColumn fx:id="guestColumn" prefWidth="150" text="Guest Name" />
+                  <TableColumn fx:id="phoneColumn" prefWidth="120" text="Phone" />
+                  <TableColumn fx:id="roomTypeColumn" prefWidth="120" text="Room Type" />
+                  <TableColumn fx:id="checkInColumn" prefWidth="130" text="Desired Check-In" />
+                  <TableColumn fx:id="checkOutColumn" prefWidth="130" text="Desired Check-Out" />
+                  <TableColumn fx:id="priorityColumn" prefWidth="80" text="Priority" />
+                  <TableColumn fx:id="statusColumn" prefWidth="100" text="Status" />
+                  <TableColumn fx:id="addedColumn" prefWidth="110" text="Added Date" />
+                  <TableColumn fx:id="actionsColumn" prefWidth="200" text="Actions" />
+               </columns>
+               <placeholder>
+                  <VBox alignment="CENTER" spacing="10">
+                     <children>
+                        <Label styleClass="empty-icon" text="⏳" />
+                        <Label styleClass="empty-text" text="No waitlist entries" />
+                     </children>
+                  </VBox>
+               </placeholder>
+            </TableView>
+            <HBox alignment="CENTER" spacing="10">
+               <children>
+                  <Label styleClass="notify-label" text="Notify administrators when rooms become available:" />
+                  <CheckBox fx:id="autoNotifyCheck" selected="true" text="Enable automatic notifications" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
