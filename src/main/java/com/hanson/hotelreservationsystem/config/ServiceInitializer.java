@@ -5,6 +5,7 @@ import com.hanson.hotelreservationsystem.model.enums.*;
 import com.hanson.hotelreservationsystem.repository.*;
 import com.hanson.hotelreservationsystem.service.*;
 import jakarta.persistence.EntityManager;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,12 +61,12 @@ public class ServiceInitializer {
             guestRepository.setEntityManager(sharedEntityManager);
             LOGGER.info("  - GuestRepository initialized");
 
-            // Add other repositories as needed
-            // AdminRepository adminRepository = AdminRepository.getInstance();
-            // adminRepository.setEntityManager(sharedEntityManager);
 
-            // LoyaltyRepository loyaltyRepository = LoyaltyRepository.getInstance();
-            // loyaltyRepository.setEntityManager(sharedEntityManager);
+            AdminRepository adminRepository = AdminRepository.getInstance();
+            adminRepository.setEntityManager(sharedEntityManager);
+
+//            LoyaltyAccountRepository loyaltyRepository = LoyaltyRepository.getInstance();
+//            loyaltyRepository.setEntityManager(sharedEntityManager);
 
             // ==================== Initialize Services ====================
             LOGGER.info("Initializing services...");
@@ -121,6 +122,7 @@ public class ServiceInitializer {
      */
     private static void createSampleDataIfNeeded(RoomRepository roomRepository) {
         try {
+            createDefaultAdmin();
             long roomCount = roomRepository.count();
 
             if (roomCount == 0) {
@@ -181,6 +183,64 @@ public class ServiceInitializer {
             if (sharedEntityManager.getTransaction().isActive()) {
                 sharedEntityManager.getTransaction().rollback();
             }
+        }
+        createDefaultAdmin();
+    }
+
+    private static void createDefaultAdmin() {
+        AdminRepository adminRepository = AdminRepository.getInstance();
+
+        // 1. Check if username exists
+        if (adminRepository.findByUsername("admin").isPresent()) {
+            LOGGER.info("Default admin user 'admin' already exists.");
+            return;
+        }
+
+        // 2. Check if email exists (Fixes the crash)
+        try {
+            Long emailCount = sharedEntityManager.createQuery(
+                            "SELECT COUNT(a) FROM Admin a WHERE a.email = :email", Long.class)
+                    .setParameter("email", "admin@archotel.com")
+                    .getSingleResult();
+
+            if (emailCount > 0) {
+                LOGGER.info("Default admin email 'admin@archotel.com' already exists. Skipping creation to prevent crash.");
+                return;
+            }
+        } catch (Exception e) {
+            // Ignore check if query fails, proceed to try insert
+        }
+
+        // 3. Create if neither exists
+        LOGGER.info("Creating default 'admin' user...");
+
+        try {
+            sharedEntityManager.getTransaction().begin();
+
+            Admin admin = new Admin();
+            admin.setUsername("admin");
+            admin.setFirstName("System");
+            admin.setLastName("Admin");
+            admin.setEmail("admin@archotel.com");
+            admin.setRole(Role.ADMIN);
+            admin.setActive(true);
+
+            // Hash password
+            String salt = BCrypt.gensalt();
+            String hashedPassword = BCrypt.hashpw("admin123", salt);
+            admin.setPasswordHash(hashedPassword);
+
+            sharedEntityManager.persist(admin);
+
+            sharedEntityManager.getTransaction().commit();
+            LOGGER.info("Default admin created successfully.");
+
+        } catch (Exception e) {
+            // Safely rollback if it fails (e.g. race condition) so app continues
+            if (sharedEntityManager.getTransaction().isActive()) {
+                sharedEntityManager.getTransaction().rollback();
+            }
+            LOGGER.warning("Could not create default admin (might already exist): " + e.getMessage());
         }
     }
 

@@ -9,13 +9,29 @@
 
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import com.hanson.hotelreservationsystem.model.Reservation;
+import com.hanson.hotelreservationsystem.repository.ReservationRepository;
+import com.hanson.hotelreservationsystem.service.NavigationService;
+import java.io.File;
+import java.io.FileWriter;
+import javafx.stage.FileChooser;
+import com.hanson.hotelreservationsystem.service.PricingService;
+import com.hanson.hotelreservationsystem.service.ReservationService;
+import com.hanson.hotelreservationsystem.service.RoomService;
+import com.hanson.hotelreservationsystem.session.AdminSession;
+import com.hanson.hotelreservationsystem.util.ActivityLogger;
+import jakarta.persistence.TypedQuery;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public class AdminReportsController {
 
@@ -38,7 +54,6 @@ public class AdminReportsController {
     // ========================================================================
     // REVENUE TAB FIELDS
     // ========================================================================
-
     @FXML private ComboBox<String> revenuePeriodCombo;
     @FXML private DatePicker revenueStartDate;
     @FXML private DatePicker revenueEndDate;
@@ -129,6 +144,12 @@ public class AdminReportsController {
     // ========================================================================
     // INITIALIZATION
     // ========================================================================
+
+    private final NavigationService navigationService;
+
+    public AdminReportsController() {
+        this.navigationService = NavigationService.getInstance();
+    }
 
     @FXML
     public void initialize() {
@@ -255,19 +276,36 @@ public class AdminReportsController {
 
     @FXML
     private void handleGenerateRevenue() {
-        // Clear existing data
         revenueData.clear();
+        LocalDate start = revenueStartDate.getValue();
+        LocalDate end = revenueEndDate.getValue();
 
-        // TODO: Load actual data from service
-        // For now, add sample data
-        revenueData.add(new RevenueRow("November 2025", 45, "$12,500.00", "$1,625.00", "-$500.00", "$13,625.00"));
-        revenueData.add(new RevenueRow("October 2025", 52, "$15,800.00", "$2,054.00", "-$750.00", "$17,104.00"));
-        revenueData.add(new RevenueRow("September 2025", 38, "$10,200.00", "$1,326.00", "-$300.00", "$11,226.00"));
+        // 1. Fetch real data
+        List<Reservation> reservations = ReservationRepository.getInstance().findByDateRange(start, end);
 
-        // Update summary cards
-        totalRevenueLabel.setText("$41,955.00");
-        totalReservationsLabel.setText("135");
-        avgRevenueLabel.setText("$310.78");
+        // 2. Aggregate Data
+        BigDecimal totalRev = BigDecimal.ZERO;
+        BigDecimal totalTax = BigDecimal.ZERO;
+
+        for (Reservation res : reservations) {
+            totalRev = totalRev.add(res.getTotalAmount());
+            totalTax = totalTax.add(res.getTaxAmount());
+        }
+
+        // 3. Add to Table
+        // You can group by month if you want, here is a simple total row
+        revenueData.add(new RevenueRow(
+                "Total Period",
+                reservations.size(),
+                String.format("$%.2f", totalRev.subtract(totalTax)), // Subtotal
+                String.format("$%.2f", totalTax),
+                "$0.00",
+                String.format("$%.2f", totalRev)
+        ));
+
+        // Update Cards
+        totalRevenueLabel.setText(String.format("$%.2f", totalRev));
+        totalReservationsLabel.setText(String.valueOf(reservations.size()));
     }
 
     // ========================================================================
@@ -346,46 +384,47 @@ public class AdminReportsController {
 
     @FXML
     private void handleExport() {
-        Tab selectedTab = reportTabs.getSelectionModel().getSelectedItem();
-        String reportName = selectedTab.getText().replaceAll("[^a-zA-Z]", "");
+        // 1. Setup File Chooser
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Report");
+        fileChooser.setInitialFileName("RevenueReport.csv");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
 
-        // Determine which data to export based on selected tab
-        StringBuilder csv = new StringBuilder();
+        // 2. Get File
+        File file = fileChooser.showSaveDialog(reportTabs.getScene().getWindow());
 
-        if (selectedTab == revenueTab) {
-            csv.append("Period,Reservations,Subtotal,Tax,Discounts,Total\n");
-            for (RevenueRow row : revenueData) {
-                csv.append(String.format("%s,%d,%s,%s,%s,%s\n",
-                        row.period, row.count, row.subtotal, row.tax, row.discount, row.total));
-            }
-        } else if (selectedTab == occupancyTab) {
-            csv.append("Date,Available,Occupied,Occupancy %,Revenue\n");
-            for (OccupancyRow row : occupancyData) {
-                csv.append(String.format("%s,%d,%d,%s,%s\n",
-                        row.date, row.available, row.occupied, row.percentage, row.revenue));
-            }
-        } else if (selectedTab == activityTab) {
-            csv.append("Timestamp,User,Action,Entity,ID,Message\n");
-            for (ActivityRow row : activityData) {
-                csv.append(String.format("%s,%s,%s,%s,%s,%s\n",
-                        row.timestamp, row.actor, row.action, row.entity, row.id, row.message));
-            }
-        } else if (selectedTab == feedbackSummaryTab) {
-            csv.append("Date,Guest,Rating,Sentiment,Comment\n");
-            for (FeedbackRow row : feedbackData) {
-                csv.append(String.format("%s,%s,%d,%s,\"%s\"\n",
-                        row.date, row.guest, row.rating, row.sentiment, row.comment));
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                // 3. Write Header
+                writer.write("Period,Reservations,Subtotal,Tax,Total\n");
+
+                // 4. Write Data rows
+                for (RevenueRow row : revenueData) {
+                    writer.write(String.format("%s,%d,%s,%s,%s\n",
+                            row.period,
+                            row.count,
+                            row.subtotal.replace("$","").replace(",",""), // Clean currency formatting
+                            row.tax.replace("$","").replace(",",""),
+                            row.total.replace("$","").replace(",","")
+                    ));
+                }
+
+                // 5. Show Success
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Export Successful!");
+                alert.showAndWait();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Export Failed: " + e.getMessage());
+                alert.showAndWait();
             }
         }
-
-        // TODO: Save CSV to file using FileChooser
-        System.out.println("Exporting " + reportName + " report:\n" + csv.toString());
     }
+
 
     @FXML
     private void handleBack() {
-        // Navigate back to dashboard
-        // ... navigation logic
+        navigationService.goToAdminDashboard();
     }
 
     // ========================================================================

@@ -94,6 +94,15 @@ public class ReservationRepository {
         }
     }
 
+    public List<Reservation> findByDateRange(LocalDate startDate, LocalDate endDate) {
+        TypedQuery<Reservation> query = entityManager.createQuery(
+                "SELECT r FROM Reservation r WHERE r.checkInDate >= :start AND r.checkInDate <= :end",
+                Reservation.class);
+        query.setParameter("start", startDate);
+        query.setParameter("end", endDate);
+        return query.getResultList();
+    }
+
     /**
      * Find a reservation by ID.
      */

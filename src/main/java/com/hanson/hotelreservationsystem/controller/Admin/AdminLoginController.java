@@ -1,5 +1,7 @@
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import com.hanson.hotelreservationsystem.repository.AdminRepository;
+import org.mindrot.jbcrypt.BCrypt;
 import com.hanson.hotelreservationsystem.model.Admin;
 import com.hanson.hotelreservationsystem.model.ActivityLog;
 import com.hanson.hotelreservationsystem.service.NavigationService;
@@ -256,28 +258,26 @@ public class AdminLoginController implements Initializable {
      * @return Optional containing the authenticated Admin, or empty if authentication failed
      */
     private Optional<Admin> authenticateAdmin(String username, String password) {
-        // In production, this would:
-        // 1. Look up admin by username from repository
-        // 2. Check if account is locked
-        // 3. Verify password using BCrypt.checkpw(password, admin.getPasswordHash())
-        // 4. Update login statistics
+        // 1. Get the repository
+        AdminRepository adminRepo = AdminRepository.getInstance();
 
-        // For demo purposes, we'll simulate authentication
-        // In production: adminRepository.findByUsername(username)
+        // 2. Look up the user in the database
+        Optional<Admin> adminOpt = adminRepo.findByUsername(username);
 
-        // Simulated demo accounts for testing
-        // Real implementation would use: BCrypt.checkpw(password, admin.getPasswordHash())
-        if ("admin".equalsIgnoreCase(username) && "admin123".equals(password)) {
-            Admin admin = createDemoAdmin("admin", "Admin", "User", false);
-            return Optional.of(admin);
-        } else if ("manager".equalsIgnoreCase(username) && "manager123".equals(password)) {
-            Admin admin = createDemoAdmin("manager", "Manager", "User", true);
-            return Optional.of(admin);
+        // 3. Verify password if user exists
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
+
+            // Verify the password using BCrypt
+            if (BCrypt.checkpw(password, admin.getPasswordHash())) {
+                // Check if account is active/locked logic here if needed
+                return Optional.of(admin);
+            }
         }
 
+        // Authentication failed
         return Optional.empty();
     }
-
     /**
      * Create a demo admin for testing.
      * In production, this would come from the database.

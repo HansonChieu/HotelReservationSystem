@@ -117,76 +117,120 @@ public class ReservationService {
     public String createReservation(BookingSession session) {
         LOGGER.info("Creating reservation from booking session");
 
-        // Get EntityManager from your persistence setup
-        EntityManager em = JPAUtil.createEntityManager(); // or however you get it
-        this.reservationRepository = new ReservationRepository(em);
-        this.guestRepository = new GuestRepository(em);
-        this.roomRepository = new RoomRepository(em);
+        // 1. Create a FRESH, TEMPORARY EntityManager for this specific booking
+        // This ensures we don't interfere with the Admin Dashboard's open connection
+        EntityManager em = JPAUtil.createEntityManager();
+
+        // 2. Create LOCAL repositories.
+        // CRITICAL FIX: We do NOT assign these to 'this.reservationRepository'.
+        // This keeps the global service safe for the Admin Dashboard.
+        ReservationRepository localResRepo = new ReservationRepository(em);
+        GuestRepository localGuestRepo = new GuestRepository(em);
+        RoomRepository localRoomRepo = new RoomRepository(em);
 
         try {
             em.getTransaction().begin();
-            // Validate session data
+
+            // --- LOGIC START ---
+
+            // 1. Validate (Same as before)
             validateBookingSession(session);
 
-            // Create or retrieve guest
-            Guest guest = findOrCreateGuest(session);
+            // 2. Handle Guest (Re-implemented locally to use localGuestRepo)
+            Guest guest = null;
+            if (session.getEmail() != null) {
+                Optional<Guest> existing = localGuestRepo.findByEmail(session.getEmail());
+                if (existing.isPresent()) guest = existing.get();
+            }
 
-            // Create reservation (WITHOUT children first)
+            if (guest == null) {
+                guest = new Guest();
+                guest.setFirstName(session.getFirstName());
+                guest.setLastName(session.getLastName());
+                guest.setEmail(session.getEmail());
+                guest.setPhone(session.getPhone());
+                guest.setCountry(session.getCountry());
+                guest.setAddress(session.getAddress());
+                guest.setCity(session.getCity());
+                guest.setStateProvince(session.getState());
+                guest.setPostalCode(session.getPostalCode());
+                guest = localGuestRepo.save(guest); // Save using LOCAL repo
+            }
+
+            // 3. Create Reservation Object
             Reservation reservation = new Reservation(
                     guest,
                     session.getCheckInDate(),
                     session.getCheckOutDate(),
                     session.getAdultCount()
             );
-
             reservation.setNumChildren(session.getChildCount());
             reservation.setBookedViaKiosk(true);
             reservation.setSpecialRequests(session.getSpecialRequests());
 
-            // PHASE 1: Save reservation first to get an ID
-            if (reservationRepository != null) {
-                reservation = reservationRepository.save(reservation);
+            // Save initially to get an ID
+            reservation = localResRepo.save(reservation);
+
+            // 4. Assign Rooms (Re-implemented locally to use localRoomRepo)
+            for (BookingSession.RoomSelection selection : session.getSelectedRooms()) {
+                if (selection.getQuantity() > 0) {
+                    // Find strictly available rooms using the local repo
+                    List<Room> availableRooms = localRoomRepo.findStrictlyAvailableRooms(
+                            selection.getRoomType(),
+                            session.getCheckInDate(),
+                            session.getCheckOutDate()
+                    );
+
+                    if (availableRooms.size() < selection.getQuantity()) {
+                        throw new IllegalStateException("Not enough " + selection.getRoomType() + " rooms available.");
+                    }
+
+                    // Assign the rooms
+                    for (int i = 0; i < selection.getQuantity(); i++) {
+                        Room room = availableRooms.get(i);
+
+                        ReservationRoom resRoom = new ReservationRoom();
+                        resRoom.setRoom(room);
+                        resRoom.setRoomPrice(selection.getPricePerNight()); // Use price from session
+                        resRoom.setNumGuests(1); // Default, can be refined
+                        resRoom.setReservation(reservation); // Link to reservation
+
+                        reservation.addRoom(resRoom);
+
+                        // Mark room reserved in this transaction
+                        room.setStatus(RoomStatus.RESERVED);
+                        localRoomRepo.save(room);
+                    }
+                }
             }
 
-            // PHASE 2: Now add children (reservation has an ID now)
-            // Assign rooms
-            assignRoomsToReservation(reservation, session);
-
-            // Add add-on services
+            // 5. Add Services (Standard logic)
             addServicesToReservation(reservation, session);
 
-            // Apply loyalty discount if applicable
-            BigDecimal loyaltyDiscount = session.getLoyaltyDiscount();
-            if (loyaltyDiscount != null && loyaltyDiscount.compareTo(BigDecimal.ZERO) > 0) {
-                int pointsUsed = loyaltyDiscount.multiply(BigDecimal.valueOf(100)).intValue();
-                reservation.setLoyaltyPointsUsed(pointsUsed);
-                reservation.setLoyaltyDiscount(loyaltyDiscount);
-            }
-
-            // Calculate totals
+            // 6. Finalize & Save
             reservation.calculateTotal();
-
-            // Set status to confirmed for kiosk bookings
             reservation.setStatus(ReservationStatus.CONFIRMED);
 
-            // PHASE 3: Save again with all children
-            if (reservationRepository != null) {
-                reservation = reservationRepository.save(reservation);
-            }
+            localResRepo.save(reservation); // Final save
 
-            LOGGER.info("Reservation created: " + reservation.getConfirmationNumber());
+            // --- COMMIT THE TRANSACTION ---
+            em.getTransaction().commit();
+            LOGGER.info("Reservation created successfully: " + reservation.getConfirmationNumber());
 
             return reservation.getConfirmationNumber();
-        }catch (Exception e) {
+
+        } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw e;
+            LOGGER.log(Level.SEVERE, "Failed to create reservation", e);
+            throw e; // Re-throw to alert the UI
         } finally {
+            // Close only this temporary connection.
+            // The Admin Dashboard's connection remains open and healthy.
             em.close();
         }
     }
-
     /**
      * Create a reservation from admin input.
      *
