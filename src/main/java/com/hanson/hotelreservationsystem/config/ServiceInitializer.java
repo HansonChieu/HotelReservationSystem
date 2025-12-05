@@ -190,57 +190,104 @@ public class ServiceInitializer {
     private static void createDefaultAdmin() {
         AdminRepository adminRepository = AdminRepository.getInstance();
 
-        // 1. Check if username exists
+        // ==========================================
+        // 1. CREATE DEFAULT ADMIN (admin / admin123)
+        // ==========================================
+        boolean adminExists = false;
+
+        // Check username
         if (adminRepository.findByUsername("admin").isPresent()) {
-            LOGGER.info("Default admin user 'admin' already exists.");
-            return;
+            LOGGER.info("Default user 'admin' already exists.");
+            adminExists = true;
         }
 
-        // 2. Check if email exists (Fixes the crash)
-        try {
-            Long emailCount = sharedEntityManager.createQuery(
-                            "SELECT COUNT(a) FROM Admin a WHERE a.email = :email", Long.class)
-                    .setParameter("email", "admin@archotel.com")
-                    .getSingleResult();
-
-            if (emailCount > 0) {
-                LOGGER.info("Default admin email 'admin@archotel.com' already exists. Skipping creation to prevent crash.");
-                return;
-            }
-        } catch (Exception e) {
-            // Ignore check if query fails, proceed to try insert
+        // Check email (to prevent unique constraint violation)
+        if (!adminExists) {
+            try {
+                Long emailCount = sharedEntityManager.createQuery(
+                                "SELECT COUNT(a) FROM Admin a WHERE a.email = :email", Long.class)
+                        .setParameter("email", "admin@archotel.com")
+                        .getSingleResult();
+                if (emailCount > 0) {
+                    LOGGER.info("Email 'admin@archotel.com' already exists. Skipping admin creation.");
+                    adminExists = true;
+                }
+            } catch (Exception e) { /* ignore */ }
         }
 
-        // 3. Create if neither exists
-        LOGGER.info("Creating default 'admin' user...");
+        // Create Admin if not exists
+        if (!adminExists) {
+            LOGGER.info("Creating default 'admin' user...");
+            try {
+                sharedEntityManager.getTransaction().begin();
+                Admin admin = new Admin();
+                admin.setUsername("admin");
+                admin.setFirstName("System");
+                admin.setLastName("Admin");
+                admin.setEmail("admin@archotel.com");
+                admin.setRole(Role.ADMIN);
+                admin.setActive(true);
+                admin.setPasswordHash(BCrypt.hashpw("admin123", BCrypt.gensalt()));
 
-        try {
-            sharedEntityManager.getTransaction().begin();
-
-            Admin admin = new Admin();
-            admin.setUsername("admin");
-            admin.setFirstName("System");
-            admin.setLastName("Admin");
-            admin.setEmail("admin@archotel.com");
-            admin.setRole(Role.ADMIN);
-            admin.setActive(true);
-
-            // Hash password
-            String salt = BCrypt.gensalt();
-            String hashedPassword = BCrypt.hashpw("admin123", salt);
-            admin.setPasswordHash(hashedPassword);
-
-            sharedEntityManager.persist(admin);
-
-            sharedEntityManager.getTransaction().commit();
-            LOGGER.info("Default admin created successfully.");
-
-        } catch (Exception e) {
-            // Safely rollback if it fails (e.g. race condition) so app continues
-            if (sharedEntityManager.getTransaction().isActive()) {
-                sharedEntityManager.getTransaction().rollback();
+                sharedEntityManager.persist(admin);
+                sharedEntityManager.getTransaction().commit();
+                LOGGER.info("Default admin created successfully.");
+            } catch (Exception e) {
+                if (sharedEntityManager.getTransaction().isActive()) {
+                    sharedEntityManager.getTransaction().rollback();
+                }
+                LOGGER.warning("Failed to create admin: " + e.getMessage());
             }
-            LOGGER.warning("Could not create default admin (might already exist): " + e.getMessage());
+        }
+
+        // ==============================================
+        // 2. CREATE DEFAULT MANAGER (manager / manager123)
+        // ==============================================
+        boolean managerExists = false;
+
+        // Check username
+        if (adminRepository.findByUsername("manager").isPresent()) {
+            LOGGER.info("Default user 'manager' already exists.");
+            managerExists = true;
+        }
+
+        // Check email
+        if (!managerExists) {
+            try {
+                Long emailCount = sharedEntityManager.createQuery(
+                                "SELECT COUNT(a) FROM Admin a WHERE a.email = :email", Long.class)
+                        .setParameter("email", "manager@archotel.com")
+                        .getSingleResult();
+                if (emailCount > 0) {
+                    LOGGER.info("Email 'manager@archotel.com' already exists. Skipping manager creation.");
+                    managerExists = true;
+                }
+            } catch (Exception e) { /* ignore */ }
+        }
+
+        // Create Manager if not exists
+        if (!managerExists) {
+            LOGGER.info("Creating default 'manager' user...");
+            try {
+                sharedEntityManager.getTransaction().begin();
+                Admin manager = new Admin();
+                manager.setUsername("manager");
+                manager.setFirstName("Hotel");
+                manager.setLastName("Manager");
+                manager.setEmail("manager@archotel.com");
+                manager.setRole(Role.MANAGER);
+                manager.setActive(true);
+                manager.setPasswordHash(BCrypt.hashpw("manager123", BCrypt.gensalt()));
+
+                sharedEntityManager.persist(manager);
+                sharedEntityManager.getTransaction().commit();
+                LOGGER.info("Default manager created successfully.");
+            } catch (Exception e) {
+                if (sharedEntityManager.getTransaction().isActive()) {
+                    sharedEntityManager.getTransaction().rollback();
+                }
+                LOGGER.warning("Failed to create manager: " + e.getMessage());
+            }
         }
     }
 

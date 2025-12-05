@@ -1774,3 +1774,293 @@
 2025-12-04 21:06:54,EntityManagerFactory closed
 2025-12-04 21:06:54,Services shut down successfully
 2025-12-04 21:06:54,Application shutdown complete
+2025-12-05 01:01:29,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 01:01:29,========================================
+2025-12-05 01:01:29,Initializing Services and Repositories
+2025-12-05 01:01:29,========================================
+2025-12-05 01:01:29,Creating EntityManagerFactory...
+2025-12-05 01:01:32,EntityManagerFactory created successfully
+2025-12-05 01:01:32,EntityManager created
+2025-12-05 01:01:32,Initializing repositories...
+2025-12-05 01:01:32,  - RoomRepository initialized
+2025-12-05 01:01:32,  - ReservationRepository initialized
+2025-12-05 01:01:32,  - GuestRepository initialized
+2025-12-05 01:01:32,Initializing services...
+2025-12-05 01:01:32,  - RoomService initialized
+2025-12-05 01:01:32,  - PricingService initialized
+2025-12-05 01:01:32,  - LoyaltyService initialized
+2025-12-05 01:01:32,  - ValidationService initialized
+2025-12-05 01:01:32,  - ReservationService initialized
+2025-12-05 01:01:32,Default admin user 'admin' already exists.
+2025-12-05 01:01:32,Database already has 15 rooms - skipping sample data creation
+2025-12-05 01:01:32,Default admin user 'admin' already exists.
+2025-12-05 01:01:32,========================================
+2025-12-05 01:01:32,All services initialized successfully!
+2025-12-05 01:01:32,========================================
+2025-12-05 01:01:32,Application initialization complete
+2025-12-05 01:01:32,Starting Hotel Reservation Application...
+2025-12-05 01:01:33,Initializing Kiosk Welcome Screen
+2025-12-05 01:01:33,Application started successfully - Welcome screen displayed
+2025-12-05 01:01:43,User clicked Start Booking - beginning new reservation flow
+2025-12-05 01:01:43,Initializing Kiosk Guest Count Screen (Step 1)
+2025-12-05 01:01:44,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskGuestCount.fxml
+2025-12-05 01:01:46,User clicked Next - validating guest count
+2025-12-05 01:01:46,Guest count saved: 2 adults, 0 children
+2025-12-05 01:01:46,Room suggestion: Recommended: Single Room, Deluxe Room, or Penthouse Room
+2025-12-05 01:01:46,Initializing Kiosk Date Selection Screen (Step 2)
+2025-12-05 01:01:46,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskDateSelection.fxml
+2025-12-05 01:01:54,User clicked Check Availability
+2025-12-05 01:01:54,Dates saved: Check-in December 5, 2025, Check-out December 10, 2025 (5 nights)
+2025-12-05 01:01:54,Selected dates include weekend - weekend rates may apply
+2025-12-05 01:01:54,Initializing Kiosk Room Selection Screen (Step 3)
+2025-12-05 01:01:54,Room availability loaded: {Deluxe Room=3, Single Room=4, Double Room=3, Penthouse Suite=1}
+2025-12-05 01:01:54,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskRoomSelection.fxml
+2025-12-05 01:02:00,User clicked Continue to Guest Details
+2025-12-05 01:02:00,Room selections saved: 1 room type(s)
+2025-12-05 01:02:00,Initializing Kiosk Guest Details Screen (Step 4)
+2025-12-05 01:02:00,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskGuestDetails.fxml
+2025-12-05 01:02:25,Guest opted to join loyalty program
+2025-12-05 01:02:52,User clicked Next - validating guest details
+2025-12-05 01:02:52,Guest details saved: TEST TESTING
+2025-12-05 01:02:52,Initializing Kiosk Add-On Services Screen (Step 5)
+2025-12-05 01:02:52,Add-on prices: WiFi=$15.00, Breakfast=$25.00, Parking=$20.00, Spa=$50.00
+2025-12-05 01:02:52,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskAddOnServices.fxml
+2025-12-05 01:02:55,Spa selected
+2025-12-05 01:02:57,User clicked Next - proceeding to booking summary
+2025-12-05 01:02:57,Add-ons saved. Total: $50.00, Tax: $71.50, Grand Total: $621.50
+2025-12-05 01:02:57,Initializing Kiosk Booking Summary Screen
+2025-12-05 01:02:57,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskBookingSummary.fxml
+2025-12-05 01:03:06,User clicked Confirm Booking
+2025-12-05 01:03:06,Creating reservation from booking session
+2025-12-05 01:03:06,Created new guest: TEST TESTING
+2025-12-05 01:03:06,Updated room: 101
+2025-12-05 01:03:06,Added add-on service: Spa Package x1
+2025-12-05 01:03:06,Reservation created successfully: RES1764914586173915
+2025-12-05 01:03:06,Reservation confirmed: RES1764914586173915
+2025-12-05 01:03:06,Initializing Kiosk Confirmation Screen
+2025-12-05 01:03:06,Booking confirmed - Confirmation #: RES1764914586173915
+2025-12-05 01:03:06,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskConfirmation.fxml
+2025-12-05 01:03:20,User clicked Done - completing booking flow
+2025-12-05 01:03:20,Booking completed - Confirmation: RES1764914586173915, Guest: TEST TESTING, Total: $621.50
+2025-12-05 01:03:23,Guest declined feedback - returning to welcome
+2025-12-05 01:03:23,Initializing Kiosk Welcome Screen
+2025-12-05 01:03:23,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskWelcome.fxml
+2025-12-05 01:03:24,User clicked Admin Login
+2025-12-05 01:03:24,Initializing Admin Login Screen
+2025-12-05 01:03:24,Navigated to: /com/hanson/hotelreservationsystem/admin/adminLogin.fxml
+2025-12-05 01:03:29,Login attempt initiated
+2025-12-05 01:03:29,System,LOGIN_FAILURE,ADMIN,manager,Login failed: Invalid username or password
+2025-12-05 01:03:29,Failed login attempt for username: manager - Invalid username or password
+2025-12-05 01:03:37,Login attempt initiated
+2025-12-05 01:03:37,System,LOGIN_FAILURE,ADMIN,manager,Login failed: Invalid username or password
+2025-12-05 01:03:37,Failed login attempt for username: manager - Invalid username or password
+2025-12-05 01:03:44,Login attempt initiated
+2025-12-05 01:03:44,Admin session started for: admin
+2025-12-05 01:03:44,Admin: admin,LOGIN_SUCCESS,ADMIN,admin,Admin logged in successfully
+2025-12-05 01:03:44,Successful login for admin: admin (Role: Administrator)
+2025-12-05 01:03:45,Initializing Admin Dashboard
+2025-12-05 01:03:45,Loading reservations
+2025-12-05 01:03:45,Loaded 1 reservations
+2025-12-05 01:03:45,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:03:45,Dashboard view active - auto-refreshing data...
+2025-12-05 01:03:45,Loading reservations
+2025-12-05 01:03:45,Loaded 1 reservations
+2025-12-05 01:03:45,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:10:41,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 01:10:41,========================================
+2025-12-05 01:10:41,Initializing Services and Repositories
+2025-12-05 01:10:41,========================================
+2025-12-05 01:10:41,Creating EntityManagerFactory...
+2025-12-05 01:10:44,EntityManagerFactory created successfully
+2025-12-05 01:10:44,EntityManager created
+2025-12-05 01:10:44,Initializing repositories...
+2025-12-05 01:10:44,  - RoomRepository initialized
+2025-12-05 01:10:44,  - ReservationRepository initialized
+2025-12-05 01:10:44,  - GuestRepository initialized
+2025-12-05 01:10:44,Initializing services...
+2025-12-05 01:10:44,  - RoomService initialized
+2025-12-05 01:10:44,  - PricingService initialized
+2025-12-05 01:10:44,  - LoyaltyService initialized
+2025-12-05 01:10:44,  - ValidationService initialized
+2025-12-05 01:10:44,  - ReservationService initialized
+2025-12-05 01:10:44,Default user 'admin' already exists.
+2025-12-05 01:10:45,Creating default 'manager' user...
+2025-12-05 01:10:45,Default manager created successfully.
+2025-12-05 01:10:45,Database already has 15 rooms - skipping sample data creation
+2025-12-05 01:10:45,Default user 'admin' already exists.
+2025-12-05 01:10:45,Default user 'manager' already exists.
+2025-12-05 01:10:45,========================================
+2025-12-05 01:10:45,All services initialized successfully!
+2025-12-05 01:10:45,========================================
+2025-12-05 01:10:45,Application initialization complete
+2025-12-05 01:10:45,Starting Hotel Reservation Application...
+2025-12-05 01:10:45,Initializing Kiosk Welcome Screen
+2025-12-05 01:10:46,Application started successfully - Welcome screen displayed
+2025-12-05 01:10:49,User clicked Admin Login
+2025-12-05 01:10:49,Initializing Admin Login Screen
+2025-12-05 01:10:49,Navigated to: /com/hanson/hotelreservationsystem/admin/adminLogin.fxml
+2025-12-05 01:10:54,Login attempt initiated
+2025-12-05 01:10:54,Admin session started for: manager
+2025-12-05 01:10:54,Admin: manager,LOGIN_SUCCESS,ADMIN,manager,Admin logged in successfully
+2025-12-05 01:10:54,Successful login for admin: manager (Role: Manager)
+2025-12-05 01:10:55,Initializing Admin Dashboard
+2025-12-05 01:10:55,Loading reservations
+2025-12-05 01:10:55,Loaded 1 reservations
+2025-12-05 01:10:55,Admin: manager,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:10:55,Dashboard view active - auto-refreshing data...
+2025-12-05 01:10:55,Loading reservations
+2025-12-05 01:10:55,Loaded 1 reservations
+2025-12-05 01:10:56,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:11:00,Admin logging out
+2025-12-05 01:11:01,Admin: manager,LOGOUT,ADMIN,manager,Admin logged out
+2025-12-05 01:11:01,Admin session ended for: manager
+2025-12-05 01:11:01,Initializing Kiosk Welcome Screen
+2025-12-05 01:11:01,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskWelcome.fxml
+2025-12-05 01:11:02,User clicked Admin Login
+2025-12-05 01:11:02,Initializing Admin Login Screen
+2025-12-05 01:11:02,Navigated to: /com/hanson/hotelreservationsystem/admin/adminLogin.fxml
+2025-12-05 01:11:06,Login attempt initiated
+2025-12-05 01:11:06,Admin session started for: admin
+2025-12-05 01:11:06,Admin: admin,LOGIN_SUCCESS,ADMIN,admin,Admin logged in successfully
+2025-12-05 01:11:06,Successful login for admin: admin (Role: Administrator)
+2025-12-05 01:11:07,Initializing Admin Dashboard
+2025-12-05 01:11:07,Loading reservations
+2025-12-05 01:11:07,Loaded 1 reservations
+2025-12-05 01:11:07,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:11:07,Dashboard view active - auto-refreshing data...
+2025-12-05 01:11:07,Loading reservations
+2025-12-05 01:11:07,Loaded 1 reservations
+2025-12-05 01:11:07,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:11:17,Updated room: 101
+2025-12-05 01:11:17,Guest checked in: RES1764914586173915
+2025-12-05 01:11:19,Loading reservations
+2025-12-05 01:11:19,Loaded 1 reservations
+2025-12-05 01:11:19,Admin: admin,CHECK_IN,RESERVATION,RES1764914586173915,Guest checked in: TEST TESTING
+2025-12-05 01:11:29,Viewing reservation details: RES1764914586173915
+2025-12-05 01:11:29,Current reservation set: RES1764914586173915
+2025-12-05 01:11:29,Navigated to: /com/hanson/hotelreservationsystem/admin/adminReservationDetails.fxml
+2025-12-05 01:11:29,Admin: admin,VIEW_RESERVATION,RESERVATION,RES1764914586173915,Viewed reservation details
+2025-12-05 01:11:33,Current reservation set: RES1764914586173915
+2025-12-05 01:11:33,Navigated to: /com/hanson/hotelreservationsystem/admin/adminPayment.fxml
+2025-12-05 01:11:42,Searching for loyalty account by email: TE***@EXAMPLE.COM
+2025-12-05 01:11:42,Searching for loyalty account by phone: ***1234
+2025-12-05 01:11:42,Payment processed: $649.75 for reservation RES1764914586173915
+2025-12-05 01:11:42,Admin: admin,PAYMENT,RESERVATION,RES1764914586173915,Processed payment of $649.75 via CASH
+2025-12-05 01:11:45,Current reservation set: RES1764914586173915
+2025-12-05 01:11:45,Navigated to: /com/hanson/hotelreservationsystem/admin/adminReservationDetails.fxml
+2025-12-05 01:11:50,Current reservation set: RES1764914586173915
+2025-12-05 01:11:50,Initializing Admin Checkout Screen
+2025-12-05 01:11:50,Navigated to: /com/hanson/hotelreservationsystem/admin/adminCheckout.fxml
+2025-12-05 01:12:02,Processing checkout for: RES1764914586173915
+2025-12-05 01:12:02,Admin: admin,CHECKOUT,RESERVATION,RES1764914586173915,Checked out: TEST TESTING
+2025-12-05 01:12:03,Initializing Admin Dashboard
+2025-12-05 01:12:03,Loading reservations
+2025-12-05 01:12:03,Loaded 1 reservations
+2025-12-05 01:12:03,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:12:03,Dashboard view active - auto-refreshing data...
+2025-12-05 01:12:03,Loading reservations
+2025-12-05 01:12:03,Loaded 1 reservations
+2025-12-05 01:12:03,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:12:14,Loading reservations
+2025-12-05 01:12:14,Loaded 1 reservations
+2025-12-05 01:12:14,Data refreshed
+2025-12-05 01:12:15,Loading reservations
+2025-12-05 01:12:15,Loaded 1 reservations
+2025-12-05 01:12:15,Data refreshed
+2025-12-05 01:12:15,Loading reservations
+2025-12-05 01:12:15,Loaded 1 reservations
+2025-12-05 01:12:15,Data refreshed
+2025-12-05 01:12:18,Loading reservations
+2025-12-05 01:12:18,Loaded 1 reservations
+2025-12-05 01:12:18,Data refreshed
+2025-12-05 01:14:52,Shutting down Hotel Reservation Application...
+2025-12-05 01:14:52,Shutting down services...
+2025-12-05 01:14:52,EntityManagerFactory closed
+2025-12-05 01:14:52,Services shut down successfully
+2025-12-05 01:14:52,Application shutdown complete
+2025-12-05 01:16:08,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 01:16:08,========================================
+2025-12-05 01:16:08,Initializing Services and Repositories
+2025-12-05 01:16:08,========================================
+2025-12-05 01:16:08,Creating EntityManagerFactory...
+2025-12-05 01:16:12,EntityManagerFactory created successfully
+2025-12-05 01:16:12,EntityManager created
+2025-12-05 01:16:12,Initializing repositories...
+2025-12-05 01:16:12,  - RoomRepository initialized
+2025-12-05 01:16:12,  - ReservationRepository initialized
+2025-12-05 01:16:12,  - GuestRepository initialized
+2025-12-05 01:16:12,Initializing services...
+2025-12-05 01:16:12,  - RoomService initialized
+2025-12-05 01:16:12,  - PricingService initialized
+2025-12-05 01:16:12,  - LoyaltyService initialized
+2025-12-05 01:16:12,  - ValidationService initialized
+2025-12-05 01:16:12,  - ReservationService initialized
+2025-12-05 01:16:12,Default user 'admin' already exists.
+2025-12-05 01:16:12,Default user 'manager' already exists.
+2025-12-05 01:16:12,Database already has 15 rooms - skipping sample data creation
+2025-12-05 01:16:12,Default user 'admin' already exists.
+2025-12-05 01:16:12,Default user 'manager' already exists.
+2025-12-05 01:16:12,========================================
+2025-12-05 01:16:12,All services initialized successfully!
+2025-12-05 01:16:12,========================================
+2025-12-05 01:16:12,Application initialization complete
+2025-12-05 01:16:12,Starting Hotel Reservation Application...
+2025-12-05 01:16:13,Initializing Kiosk Welcome Screen
+2025-12-05 01:16:13,Application started successfully - Welcome screen displayed
+2025-12-05 01:16:40,User clicked Admin Login
+2025-12-05 01:16:40,Initializing Admin Login Screen
+2025-12-05 01:16:40,Navigated to: /com/hanson/hotelreservationsystem/admin/adminLogin.fxml
+2025-12-05 01:16:44,Login attempt initiated
+2025-12-05 01:16:44,Admin session started for: admin
+2025-12-05 01:16:44,Admin: admin,LOGIN_SUCCESS,ADMIN,admin,Admin logged in successfully
+2025-12-05 01:16:44,Successful login for admin: admin (Role: Administrator)
+2025-12-05 01:16:46,Initializing Admin Dashboard
+2025-12-05 01:16:46,Loading reservations
+2025-12-05 01:16:46,Loaded 1 reservations
+2025-12-05 01:16:46,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:16:46,Dashboard view active - auto-refreshing data...
+2025-12-05 01:16:46,Loading reservations
+2025-12-05 01:16:46,Loaded 1 reservations
+2025-12-05 01:16:47,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:16:52,Opening checkout screen for: RES1764914586173915
+2025-12-05 01:16:52,Current reservation set: RES1764914586173915
+2025-12-05 01:16:52,Initializing Admin Checkout Screen
+2025-12-05 01:16:52,Navigated to: /com/hanson/hotelreservationsystem/admin/adminCheckout.fxml
+2025-12-05 01:16:52,Admin: admin,CHECKOUT_START,RESERVATION,RES1764914586173915,Started checkout process
+2025-12-05 01:17:04,Printing checkout receipt
+2025-12-05 01:17:06,Admin: admin,PRINT_RECEIPT,RESERVATION,RES1764914586173915,Printed checkout receipt
+2025-12-05 01:17:09,Processing checkout for: RES1764914586173915
+2025-12-05 01:17:09,Updated room: 101
+2025-12-05 01:17:09,Updated room: 101
+2025-12-05 01:17:09,Guest checked out: RES1764914586173915
+2025-12-05 01:17:09,Admin: admin,CHECKOUT,RESERVATION,RES1764914586173915,Checked out: TEST TESTING
+2025-12-05 01:17:11,Initializing Admin Dashboard
+2025-12-05 01:17:11,Loading reservations
+2025-12-05 01:17:11,Loaded 1 reservations
+2025-12-05 01:17:11,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:17:11,Dashboard view active - auto-refreshing data...
+2025-12-05 01:17:11,Loading reservations
+2025-12-05 01:17:11,Loaded 1 reservations
+2025-12-05 01:17:11,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:17:18,Viewing reservation details: RES1764914586173915
+2025-12-05 01:17:18,Current reservation set: RES1764914586173915
+2025-12-05 01:17:18,Navigated to: /com/hanson/hotelreservationsystem/admin/adminReservationDetails.fxml
+2025-12-05 01:17:18,Admin: admin,VIEW_RESERVATION,RESERVATION,RES1764914586173915,Viewed reservation details
+2025-12-05 01:17:24,Initializing Admin Dashboard
+2025-12-05 01:17:24,Loading reservations
+2025-12-05 01:17:24,Loaded 1 reservations
+2025-12-05 01:17:24,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 01:17:24,Dashboard view active - auto-refreshing data...
+2025-12-05 01:17:24,Loading reservations
+2025-12-05 01:17:24,Loaded 1 reservations
+2025-12-05 01:17:24,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 01:17:30,Failed to navigate to: /com/hanson/hotelreservationsystem/admin/adminLoyaltyDashboard.fxml
+2025-12-05 01:17:30,Navigation failed: /com/hanson/hotelreservationsystem/admin/adminLoyaltyDashboard.fxml
+2025-12-05 01:17:33,Failed to navigate to: /com/hanson/hotelreservationsystem/admin/adminFeedbackViewer.fxml
+2025-12-05 01:17:33,Navigation failed: /com/hanson/hotelreservationsystem/admin/adminFeedbackViewer.fxml
+2025-12-05 01:17:35,Navigated to: /com/hanson/hotelreservationsystem/admin/adminReports.fxml
+2025-12-05 01:18:00,Shutting down Hotel Reservation Application...
+2025-12-05 01:18:00,Shutting down services...
+2025-12-05 01:18:00,EntityManagerFactory closed
+2025-12-05 01:18:00,Services shut down successfully
+2025-12-05 01:18:00,Application shutdown complete

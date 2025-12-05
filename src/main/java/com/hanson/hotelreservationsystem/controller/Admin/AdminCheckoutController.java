@@ -347,8 +347,13 @@ public class AdminCheckoutController implements Initializable {
                 redeemLoyaltyPoints();
             }
 
-            // Process checkout
-            currentReservation.checkOut();
+            // Process checkout via Service (handles persistence and room status updates)
+            if (reservationService != null) {
+                reservationService.checkOut(currentReservation);
+            } else {
+                // Fallback for testing only
+                currentReservation.checkOut();
+            }
 
             // Award loyalty points for stay
             awardLoyaltyPoints();
