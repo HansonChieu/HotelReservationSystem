@@ -1,9 +1,13 @@
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import com.hanson.hotelreservationsystem.model.*;
 import com.hanson.hotelreservationsystem.model.enums.*;
 import com.hanson.hotelreservationsystem.events.RoomAvailabilityEvent;
 import com.hanson.hotelreservationsystem.events.RoomAvailabilityObserver;
-import com.hanson.hotelreservationsystem.service.*;
+import com.hanson.hotelreservationsystem.repository.WaitlistRepository;
+import com.hanson.hotelreservationsystem.repository.GuestRepository;
+import com.hanson.hotelreservationsystem.service.NavigationService;
+import com.hanson.hotelreservationsystem.service.RoomService;
 import com.hanson.hotelreservationsystem.session.AdminSession;
 import com.hanson.hotelreservationsystem.util.ActivityLogger;
 import javafx.application.Platform;
@@ -15,40 +19,28 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-/**
- * Controller for the Admin Waitlist Management Screen.
- *
- * CORRECTED VERSION - Aligned with adminWaitlist.fxml
- *
- * Implements RoomAvailabilityObserver (Observer pattern) to receive notifications
- * when rooms become available.
- *
- * Responsibilities:
- * - Display waitlist entries in a searchable table
- * - Filter by room type, date, and status
- * - Process waitlist when rooms become available
- * - Notify guests of availability
- */
 public class AdminWaitlistController implements Initializable, RoomAvailabilityObserver {
 
     private static final Logger LOGGER = Logger.getLogger(AdminWaitlistController.class.getName());
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
 
-    // ==================== Filters ====================
     @FXML private ComboBox<String> roomTypeFilter;
     @FXML private DatePicker dateFilter;
     @FXML private ComboBox<String> statusFilter;
+    @FXML private CheckBox autoNotifyCheck;
 
-    // ==================== Waitlist Table ====================
     @FXML private TableView<WaitlistEntry> waitlistTable;
     @FXML private TableColumn<WaitlistEntry, String> idColumn;
     @FXML private TableColumn<WaitlistEntry, String> guestColumn;
@@ -61,37 +53,248 @@ public class AdminWaitlistController implements Initializable, RoomAvailabilityO
     @FXML private TableColumn<WaitlistEntry, String> addedColumn;
     @FXML private TableColumn<WaitlistEntry, String> actionsColumn;
 
-    // ==================== Auto-Notify ====================
-    @FXML private CheckBox autoNotifyCheck;
-
-    // ==================== Data ====================
     private ObservableList<WaitlistEntry> allEntries = FXCollections.observableArrayList();
     private FilteredList<WaitlistEntry> filteredEntries;
 
-    // ==================== Services ====================
-    private NavigationService navigationService;
-    private AdminSession adminSession;
-    private ActivityLogger activityLogger;
-
-    public AdminWaitlistController() {
-        this.navigationService = NavigationService.getInstance();
-        this.adminSession = AdminSession.getInstance();
-        this.activityLogger = ActivityLogger.getInstance();
-    }
+    // Dependencies
+    private NavigationService navigationService = NavigationService.getInstance();
+    private AdminSession adminSession = AdminSession.getInstance();
+    private ActivityLogger activityLogger = ActivityLogger.getInstance();
+    private WaitlistRepository waitlistRepository = WaitlistRepository.getInstance();
+    private GuestRepository guestRepository = GuestRepository.getInstance();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        LOGGER.info("Initializing Admin Waitlist Screen");
-
         if (!adminSession.isLoggedIn()) {
             Platform.runLater(() -> navigationService.goToAdminLogin());
             return;
         }
 
+        // Register observer
+        RoomService.getInstance().addObserver(this);
+
         setupFilters();
         setupTableColumns();
         setupActionsColumn();
+        loadWaitlistData(); // Now loads from DB
+    }
+    @FXML
+    public void handleAddToWaitlist(ActionEvent event) {
+        Dialog<WaitlistFormData> dialog = new Dialog<>();
+        dialog.setTitle("Add to Waitlist");
+        dialog.setHeaderText("Enter Guest Details and Preferences");
+
+        // Set the button types
+        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        // Create labels and fields
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Full Name");
+        TextField phoneField = new TextField();
+        phoneField.setPromptText("Phone Number");
+        TextField emailField = new TextField();
+        emailField.setPromptText("Email");
+
+        ComboBox<RoomType> roomTypeCombo = new ComboBox<>();
+        roomTypeCombo.getItems().setAll(RoomType.values());
+        roomTypeCombo.getSelectionModel().selectFirst();
+
+        DatePicker checkInDate = new DatePicker(LocalDate.now());
+        DatePicker checkOutDate = new DatePicker(LocalDate.now().plusDays(1));
+
+        Spinner<Integer> guestCount = new Spinner<>(1, 10, 1);
+
+        grid.add(new Label("Name:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Phone:"), 0, 1);
+        grid.add(phoneField, 1, 1);
+        grid.add(new Label("Email:"), 0, 2);
+        grid.add(emailField, 1, 2);
+        grid.add(new Label("Room Type:"), 0, 3);
+        grid.add(roomTypeCombo, 1, 3);
+        grid.add(new Label("Check-In:"), 0, 4);
+        grid.add(checkInDate, 1, 4);
+        grid.add(new Label("Check-Out:"), 0, 5);
+        grid.add(checkOutDate, 1, 5);
+        grid.add(new Label("Guests:"), 0, 6);
+        grid.add(guestCount, 1, 6);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Convert result to a temporary DTO (Data Transfer Object)
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                return new WaitlistFormData(
+                        nameField.getText(),
+                        phoneField.getText(),
+                        emailField.getText(),
+                        roomTypeCombo.getValue(),
+                        checkInDate.getValue(),
+                        checkOutDate.getValue(),
+                        guestCount.getValue()
+                );
+            }
+            return null;
+        });
+
+        Optional<WaitlistFormData> result = dialog.showAndWait();
+
+        result.ifPresent(data -> {
+            try {
+                // --- DATABASE OPERATIONS START HERE ---
+
+                // 1. Create and Save Guest FIRST
+                // This ensures the Guest is attached to the Persistence Context
+                Guest guest = new Guest();
+                String[] names = data.name.split(" ");
+                guest.setFirstName(names.length > 0 ? names[0] : data.name);
+                guest.setLastName(names.length > 1 ? names[1] : "Guest");
+                guest.setEmail(data.email);
+                guest.setPhone(data.phone);
+
+                // The repository calls em.persist(). Since WaitlistRepository will start
+                // a transaction shortly, this guest will be flushed with it.
+                Guest savedGuest = guestRepository.save(guest);
+
+                // 2. Create WaitlistEntry with the PERSISTED Guest reference
+                WaitlistEntry entry = new WaitlistEntry(
+                        savedGuest,
+                        data.roomType,
+                        data.checkIn,
+                        data.checkOut,
+                        data.guests
+                );
+                entry.setAddedBy(adminSession.getActorName());
+
+                // 3. Save WaitlistEntry (This commits the transaction for BOTH entities)
+                waitlistRepository.save(entry);
+
+                // --- DATABASE OPERATIONS END ---
+
+                loadWaitlistData(); // Refresh table
+
+                activityLogger.logActivity(adminSession.getActorName(), "WAITLIST_ADD",
+                        "WAITLIST", "N/A", "Added " + savedGuest.getFullName() + " to waitlist");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to add to waitlist: " + e.getMessage());
+            }
+        });
+    }
+
+    // Inner class to hold form data temporarily
+    private static class WaitlistFormData {
+        String name, phone, email;
+        RoomType roomType;
+        LocalDate checkIn, checkOut;
+        int guests;
+
+        public WaitlistFormData(String name, String phone, String email, RoomType roomType, LocalDate checkIn, LocalDate checkOut, int guests) {
+            this.name = name; this.phone = phone; this.email = email;
+            this.roomType = roomType; this.checkIn = checkIn; this.checkOut = checkOut;
+            this.guests = guests;
+        }
+    }
+
+    // --- 2. LOAD REAL DATA ---
+    private void loadWaitlistData() {
+        allEntries.clear();
+        allEntries.addAll(waitlistRepository.findAll());
+
+        filteredEntries = new FilteredList<>(allEntries, p -> true);
+        waitlistTable.setItems(filteredEntries);
+        waitlistTable.refresh();
+    }
+
+    // --- 3. CONVERT TO RESERVATION ---
+    private void handleConvertEntry(WaitlistEntry entry) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Convert to Reservation");
+        confirm.setHeaderText("Convert this waitlist entry to a booking?");
+        confirm.setContentText("Guest: " + entry.getGuest().getFullName());
+
+        if (confirm.showAndWait().get() == ButtonType.OK) {
+            // 1. Set the guest in session so the form picks it up
+            adminSession.setCurrentGuest(entry.getGuest());
+
+            // 2. Update Waitlist Status
+            entry.setStatus("CONVERTED");
+            entry.setConvertedAt(LocalDateTime.now());
+            waitlistRepository.save(entry);
+
+            loadWaitlistData();
+
+            // 3. Navigate to Reservation Form
+            navigationService.goToAdminReservationForm();
+        }
+    }
+
+    private void handleNotifyEntry(WaitlistEntry entry) {
+        entry.markNotified();
+        waitlistRepository.save(entry);
         loadWaitlistData();
+
+        showAlert(Alert.AlertType.INFORMATION, "Guest Notified",
+                "Notification sent to " + entry.getContactEmail());
+    }
+
+    private void handleRemoveEntry(WaitlistEntry entry) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Remove Entry");
+        confirm.setHeaderText("Remove " + entry.getGuest().getFullName() + " from waitlist?");
+
+        if (confirm.showAndWait().get() == ButtonType.OK) {
+            waitlistRepository.delete(entry);
+            loadWaitlistData();
+            activityLogger.logActivity(adminSession.getActorName(), "WAITLIST_REMOVE",
+                    "WAITLIST", String.valueOf(entry.getId()), "Removed waitlist entry");
+        }
+    }
+
+    @FXML public void handleFilterChange(ActionEvent event) {
+        if (filteredEntries == null) return;
+        filteredEntries.setPredicate(entry -> {
+            // Room Type Filter
+            if (roomTypeFilter.getValue() != null && !"All Types".equals(roomTypeFilter.getValue())) {
+                if (!entry.getDesiredRoomType().getDisplayName().equals(roomTypeFilter.getValue())) return false;
+            }
+            // Status Filter
+            if (statusFilter.getValue() != null && !"All Statuses".equals(statusFilter.getValue())) {
+                if (!entry.getStatus().equals(statusFilter.getValue())) return false;
+            }
+            // Date Filter
+            if (dateFilter.getValue() != null) {
+                if (!entry.getDesiredCheckIn().equals(dateFilter.getValue())) return false;
+            }
+            return true;
+        });
+    }
+
+    @Override
+    public void onAvailabilityChange(RoomAvailabilityEvent event) {
+        // When a room opens up, check if any PENDING waitlist entries match
+        Platform.runLater(() -> {
+            boolean matchFound = false;
+            for (WaitlistEntry entry : allEntries) {
+                if ("WAITING".equals(entry.getStatus()) &&
+                        entry.getDesiredRoomType() == event.getRoomType()) {
+
+                    if (autoNotifyCheck.isSelected()) {
+                        handleNotifyEntry(entry);
+                    }
+                    matchFound = true;
+                }
+            }
+            if (matchFound) {
+                loadWaitlistData(); // Refresh UI to show updated statuses
+            }
+        });
     }
 
     private void setupFilters() {
@@ -108,110 +311,27 @@ public class AdminWaitlistController implements Initializable, RoomAvailabilityO
         // Status filter
         if (statusFilter != null) {
             statusFilter.setItems(FXCollections.observableArrayList(
-                    "All Statuses", "PENDING", "NOTIFIED", "CONVERTED", "EXPIRED"
+                    "All Statuses", "WAITING", "NOTIFIED", "CONVERTED", "EXPIRED"
             ));
             statusFilter.getSelectionModel().selectFirst();
-        }
-
-        // Date filter
-        if (dateFilter != null) {
-            dateFilter.setValue(null);
         }
     }
 
     private void setupTableColumns() {
-        if (waitlistTable == null) return;
+        // Same as your code, but ensure CellValueFactories use the real getters
+        idColumn.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getId())));
+        guestColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getGuest().getFullName()));
+        phoneColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getGuest().getPhone()));
+        roomTypeColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDesiredRoomType().toString()));
+        checkInColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDesiredCheckIn().toString()));
+        checkOutColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDesiredCheckOut().toString()));
+        statusColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatus()));
 
-        // ID column
-        if (idColumn != null) {
-            idColumn.setCellValueFactory(c ->
-                    new SimpleStringProperty(String.valueOf(c.getValue().getId())));
-        }
-
-        // Guest name column
-        if (guestColumn != null) {
-            guestColumn.setCellValueFactory(c ->
-                    new SimpleStringProperty(c.getValue().getGuestName()));
-        }
-
-        // Phone column
-        if (phoneColumn != null) {
-            phoneColumn.setCellValueFactory(c ->
-                    new SimpleStringProperty(c.getValue().getPhone()));
-        }
-
-        // Room type column
-        if (roomTypeColumn != null) {
-            roomTypeColumn.setCellValueFactory(c -> {
-                RoomType type = c.getValue().getRequestedRoomType();
-                return new SimpleStringProperty(type != null ? type.getDisplayName() : "N/A");
-            });
-        }
-
-        // Check-in column
-        if (checkInColumn != null) {
-            checkInColumn.setCellValueFactory(c -> {
-                LocalDate date = c.getValue().getRequestedCheckIn();
-                return new SimpleStringProperty(date != null ? date.format(DATE_FORMAT) : "N/A");
-            });
-        }
-
-        // Check-out column
-        if (checkOutColumn != null) {
-            checkOutColumn.setCellValueFactory(c -> {
-                LocalDate date = c.getValue().getRequestedCheckOut();
-                return new SimpleStringProperty(date != null ? date.format(DATE_FORMAT) : "N/A");
-            });
-        }
-
-        // Priority column
-        if (priorityColumn != null) {
-            priorityColumn.setCellValueFactory(c ->
-                    new SimpleStringProperty(String.valueOf(c.getValue().getPriority())));
-        }
-
-        // Status column with styling
-        if (statusColumn != null) {
-            statusColumn.setCellValueFactory(c ->
-                    new SimpleStringProperty(c.getValue().getStatus()));
-            statusColumn.setCellFactory(col -> new TableCell<>() {
-                @Override
-                protected void updateItem(String status, boolean empty) {
-                    super.updateItem(status, empty);
-                    if (empty || status == null) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        setText(status);
-                        setStyle(switch (status) {
-                            case "PENDING" -> "-fx-text-fill: #17a2b8;";
-                            case "NOTIFIED" -> "-fx-text-fill: #28a745;";
-                            case "CONVERTED" -> "-fx-text-fill: #6c757d;";
-                            case "EXPIRED" -> "-fx-text-fill: #dc3545;";
-                            default -> "";
-                        });
-                    }
-                }
-            });
-        }
-
-        // Added date column
-        if (addedColumn != null) {
-            addedColumn.setCellValueFactory(c -> {
-                LocalDateTime date = c.getValue().getAddedDate();
-                return new SimpleStringProperty(date != null ? date.format(DATE_FORMAT) : "N/A");
-            });
-        }
-
-        // Setup filtered list
-        filteredEntries = new FilteredList<>(allEntries, p -> true);
-        waitlistTable.setItems(filteredEntries);
+        // Keep your existing styling logic in setCellFactory
     }
 
     private void setupActionsColumn() {
-        if (actionsColumn == null) return;
-
-        actionsColumn.setCellFactory(col -> new TableCell<>() {
+        actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button notifyBtn = new Button("Notify");
             private final Button convertBtn = new Button("Convert");
             private final Button removeBtn = new Button("Remove");
@@ -219,22 +339,11 @@ public class AdminWaitlistController implements Initializable, RoomAvailabilityO
             {
                 notifyBtn.getStyleClass().add("small-button");
                 convertBtn.getStyleClass().add("small-button");
-                removeBtn.getStyleClass().addAll("small-button", "cancel-button");
+                removeBtn.getStyleClass().add("small-button");
 
-                notifyBtn.setOnAction(e -> {
-                    WaitlistEntry entry = getTableView().getItems().get(getIndex());
-                    handleNotifyEntry(entry);
-                });
-
-                convertBtn.setOnAction(e -> {
-                    WaitlistEntry entry = getTableView().getItems().get(getIndex());
-                    handleConvertEntry(entry);
-                });
-
-                removeBtn.setOnAction(e -> {
-                    WaitlistEntry entry = getTableView().getItems().get(getIndex());
-                    handleRemoveEntry(entry);
-                });
+                notifyBtn.setOnAction(e -> handleNotifyEntry(getTableView().getItems().get(getIndex())));
+                convertBtn.setOnAction(e -> handleConvertEntry(getTableView().getItems().get(getIndex())));
+                removeBtn.setOnAction(e -> handleRemoveEntry(getTableView().getItems().get(getIndex())));
             }
 
             @Override
@@ -243,246 +352,32 @@ public class AdminWaitlistController implements Initializable, RoomAvailabilityO
                 if (empty) {
                     setGraphic(null);
                 } else {
+                    javafx.scene.layout.HBox pane = new javafx.scene.layout.HBox(5);
                     WaitlistEntry entry = getTableView().getItems().get(getIndex());
-                    javafx.scene.layout.HBox box = new javafx.scene.layout.HBox(5);
-
-                    if ("PENDING".equals(entry.getStatus())) {
-                        box.getChildren().addAll(notifyBtn, convertBtn, removeBtn);
-                    } else if ("NOTIFIED".equals(entry.getStatus())) {
-                        box.getChildren().addAll(convertBtn, removeBtn);
+                    if ("WAITING".equals(entry.getStatus())) {
+                        pane.getChildren().addAll(notifyBtn, convertBtn, removeBtn);
                     } else {
-                        box.getChildren().add(removeBtn);
+                        pane.getChildren().addAll(convertBtn, removeBtn);
                     }
-
-                    setGraphic(box);
+                    setGraphic(pane);
                 }
             }
         });
-    }
-
-    private void loadWaitlistData() {
-        // Sample data for demonstration
-        allEntries.clear();
-
-        WaitlistEntry entry1 = new WaitlistEntry();
-        entry1.setId(1L);
-        entry1.setGuestName("John Smith");
-        entry1.setEmail("john@example.com");
-        entry1.setPhone("555-0101");
-        entry1.setRequestedRoomType(RoomType.DELUXE);
-        entry1.setRequestedCheckIn(LocalDate.now().plusDays(7));
-        entry1.setRequestedCheckOut(LocalDate.now().plusDays(10));
-        entry1.setPriority(1);
-        entry1.setStatus("PENDING");
-        entry1.setAddedDate(LocalDateTime.now().minusDays(2));
-
-        WaitlistEntry entry2 = new WaitlistEntry();
-        entry2.setId(2L);
-        entry2.setGuestName("Jane Doe");
-        entry2.setEmail("jane@example.com");
-        entry2.setPhone("555-0102");
-        entry2.setRequestedRoomType(RoomType.PENTHOUSE);
-        entry2.setRequestedCheckIn(LocalDate.now().plusDays(14));
-        entry2.setRequestedCheckOut(LocalDate.now().plusDays(17));
-        entry2.setPriority(2);
-        entry2.setStatus("NOTIFIED");
-        entry2.setAddedDate(LocalDateTime.now().minusDays(5));
-
-        allEntries.addAll(entry1, entry2);
-    }
-
-    private void applyFilters() {
-        if (filteredEntries == null) return;
-
-        filteredEntries.setPredicate(entry -> {
-            // Room type filter
-            if (roomTypeFilter != null && roomTypeFilter.getValue() != null
-                    && !"All Types".equals(roomTypeFilter.getValue())) {
-                if (entry.getRequestedRoomType() == null ||
-                        !entry.getRequestedRoomType().getDisplayName().equals(roomTypeFilter.getValue())) {
-                    return false;
-                }
-            }
-
-            // Status filter
-            if (statusFilter != null && statusFilter.getValue() != null
-                    && !"All Statuses".equals(statusFilter.getValue())) {
-                if (!statusFilter.getValue().equals(entry.getStatus())) {
-                    return false;
-                }
-            }
-
-            // Date filter
-            if (dateFilter != null && dateFilter.getValue() != null) {
-                LocalDate filterDate = dateFilter.getValue();
-                if (entry.getRequestedCheckIn() == null ||
-                        !entry.getRequestedCheckIn().equals(filterDate)) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }
-
-    // ==================== Observer Pattern ====================
-
-
-    @Override
-    public void onAvailabilityChange(RoomAvailabilityEvent event) {
-        // Called when a room becomes available
-        Platform.runLater(() -> {
-            if (autoNotifyCheck != null && autoNotifyCheck.isSelected()) {
-                // Find matching waitlist entries and notify
-                for (WaitlistEntry entry : allEntries) {
-                    if ("PENDING".equals(entry.getStatus()) &&
-                            entry.getRequestedRoomType() == event.getRoomType()) {
-                        handleNotifyEntry(entry);
-                        break; // Notify first matching entry
-                    }
-                }
-            }
-            waitlistTable.refresh();
-        });
-    }
-
-    @Override
-    public String getObserverId() {
-        return "AdminWaitlistController";
-    }
-
-    // ==================== FXML Event Handlers ====================
-
-    @FXML
-    public void handleAddToWaitlist(ActionEvent event) {
-        // Open a dialog to add new waitlist entry
-        // For now, show a placeholder alert
-        showAlert(Alert.AlertType.INFORMATION, "Add to Waitlist",
-                "This would open a form to add a new waitlist entry.");
     }
 
     @FXML
-    public void handleFilterChange(ActionEvent event) {
-        applyFilters();
+    private void handleBack(){
+        LOGGER.info("Navigating back to dashboard");
+        navigationService.goToAdminDashboard();
     }
 
-    // ==================== Action Handlers ====================
-
-    private void handleNotifyEntry(WaitlistEntry entry) {
-        entry.setStatus("NOTIFIED");
-        entry.setNotifiedDate(LocalDateTime.now());
-        waitlistTable.refresh();
-
-        logActivity("WAITLIST_NOTIFY", "WAITLIST", entry.getEmail(),
-                "Notified: " + entry.getGuestName());
-        showAlert(Alert.AlertType.INFORMATION, "Notified",
-                "Guest " + entry.getGuestName() + " has been notified of availability.");
-    }
-
-    private void handleConvertEntry(WaitlistEntry entry) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Convert to Reservation");
-        confirm.setHeaderText("Create reservation from waitlist entry?");
-        confirm.setContentText("Guest: " + entry.getGuestName());
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            entry.setStatus("CONVERTED");
-            waitlistTable.refresh();
-
-            logActivity("WAITLIST_CONVERT", "WAITLIST", entry.getEmail(),
-                    "Converted: " + entry.getGuestName());
-
-            // Navigate to reservation form with pre-filled data
-            // In real implementation, pass entry data to form
-            navigationService.navigateTo("/com/hanson/hotelreservationsystem/admin/adminReservationForm.fxml");
-        }
-    }
-
-    private void handleRemoveEntry(WaitlistEntry entry) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Remove Entry");
-        confirm.setHeaderText("Remove " + entry.getGuestName() + " from waitlist?");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            allEntries.remove(entry);
-            logActivity("WAITLIST_REMOVE", "WAITLIST", entry.getEmail(),
-                    "Removed: " + entry.getGuestName());
-        }
-    }
-
-    // ==================== Helper Methods ====================
+    @Override
+    public String getObserverId() { return "AdminWaitlistController"; }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    private void logActivity(String action, String entityType, String entityId, String message) {
-        if (activityLogger != null) {
-            activityLogger.logActivity(adminSession.getActorName(), action, entityType, entityId, message);
-        }
-    }
-
-    // ==================== Waitlist Entry Inner Class ====================
-
-    public static class WaitlistEntry {
-        private Long id;
-        private String guestName;
-        private String email;
-        private String phone;
-        private RoomType requestedRoomType;
-        private LocalDate requestedCheckIn;
-        private LocalDate requestedCheckOut;
-        private int guestCount;
-        private int priority;
-        private String notes;
-        private String status;
-        private LocalDateTime addedDate;
-        private LocalDateTime notifiedDate;
-
-        // Getters and Setters
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
-        public String getGuestName() { return guestName; }
-        public void setGuestName(String guestName) { this.guestName = guestName; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public RoomType getRequestedRoomType() { return requestedRoomType; }
-        public void setRequestedRoomType(RoomType requestedRoomType) { this.requestedRoomType = requestedRoomType; }
-        public LocalDate getRequestedCheckIn() { return requestedCheckIn; }
-        public void setRequestedCheckIn(LocalDate requestedCheckIn) { this.requestedCheckIn = requestedCheckIn; }
-        public LocalDate getRequestedCheckOut() { return requestedCheckOut; }
-        public void setRequestedCheckOut(LocalDate requestedCheckOut) { this.requestedCheckOut = requestedCheckOut; }
-        public int getGuestCount() { return guestCount; }
-        public void setGuestCount(int guestCount) { this.guestCount = guestCount; }
-        public int getPriority() { return priority; }
-        public void setPriority(int priority) { this.priority = priority; }
-        public String getNotes() { return notes; }
-        public void setNotes(String notes) { this.notes = notes; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-        public LocalDateTime getAddedDate() { return addedDate; }
-        public void setAddedDate(LocalDateTime addedDate) { this.addedDate = addedDate; }
-        public LocalDateTime getNotifiedDate() { return notifiedDate; }
-        public void setNotifiedDate(LocalDateTime notifiedDate) { this.notifiedDate = notifiedDate; }
-    }
-
-    // ==================== Setters for DI ====================
-
-    public void setNavigationService(NavigationService navigationService) {
-        this.navigationService = navigationService;
-    }
-    public void setAdminSession(AdminSession adminSession) {
-        this.adminSession = adminSession;
-    }
-    public void setActivityLogger(ActivityLogger activityLogger) {
-        this.activityLogger = activityLogger;
     }
 }

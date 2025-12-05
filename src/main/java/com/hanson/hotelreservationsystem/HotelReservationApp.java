@@ -1,6 +1,9 @@
 package com.hanson.hotelreservationsystem;
 
 import com.hanson.hotelreservationsystem.config.ServiceInitializer;
+// 1. ADD THESE IMPORTS to access the repositories
+import com.hanson.hotelreservationsystem.repository.GuestRepository;
+import com.hanson.hotelreservationsystem.repository.LoyaltyAccountRepository;
 import com.hanson.hotelreservationsystem.service.NavigationService;
 import com.hanson.hotelreservationsystem.session.BookingSession;
 import com.hanson.hotelreservationsystem.util.ActivityLogger;
@@ -10,6 +13,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import jakarta.persistence.EntityManager; // Required for the fix
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +41,25 @@ public class HotelReservationApp extends Application {
         // ✅ CRITICAL: Initialize all services with their repository dependencies
         // This is the central DI configuration per assignment requirements
         ServiceInitializer.initialize();
+
+        // ---------------------------------------------------------------------
+        // 🛠️ BUG FIX: Manually inject EntityManager into LoyaltyAccountRepository
+        // ---------------------------------------------------------------------
+        // Since ServiceInitializer is apparently missing the LoyaltyRepo setup,
+        // we borrow the working EntityManager from GuestRepository.
+        try {
+            EntityManager em = GuestRepository.getInstance().getEntityManager();
+
+            if (em != null) {
+                LoyaltyAccountRepository.getInstance().setEntityManager(em);
+                LOGGER.info("✅ SUCCESS: Manually injected EntityManager into LoyaltyAccountRepository.");
+            } else {
+                LOGGER.severe("❌ FAILURE: GuestRepository has no EntityManager. Database connection failed.");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "❌ ERROR: Failed to patch Loyalty Repository connection", e);
+        }
+        // ---------------------------------------------------------------------
 
         // Pre-initialize session singletons
         BookingSession.getInstance();

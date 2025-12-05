@@ -42,14 +42,10 @@ public class NavigationService {
     public static final String ADMIN_FORM = "/com/hanson/hotelreservationsystem/admin/adminReservationForm.fxml";
     public static final String ADMIN_PAYMENT = "/com/hanson/hotelreservationsystem/admin/adminPayment.fxml";
     public static final String ADMIN_CHECKOUT = "/com/hanson/hotelreservationsystem/admin/adminCheckout.fxml";
-    public static final String ADMIN_ROOM_DETAILS = "/com/hanson/hotelreservationsystem/admin/adminRoomDetails.fxml";
-    public static final String ADMIN_GUESTS = "/com/hanson/hotelreservationsystem/admin/adminGuests.fxml";
-    public static final String ADMIN_GUEST_DETAILS = "/com/hanson/hotelreservationsystem/admin/adminGuestDetails.fxml";
     public static final String ADMIN_LOYALTY_DASHBOARD = "/com/hanson/hotelreservationsystem/admin/adminLoyaltyDashboard.fxml";
     public static final String ADMIN_FEEDBACK_VIEWER = "/com/hanson/hotelreservationsystem/admin/adminFeedbackViewer.fxml";
     public static final String ADMIN_REPORTS = "/com/hanson/hotelreservationsystem/admin/adminReports.fxml";
-    public static final String ADMIN_SETTINGS = "/com/hanson/hotelreservationsystem/admin/adminSettings.fxml";
-    public static final String ADMIN_ACTIVITY_LOG = "/com/hanson/hotelreservationsystem/admin/adminActivityLog.fxml";
+    public static final String ADMIN_WAITLIST = "/com/hanson/hotelreservationsystem/admin/adminWaitlist.fxml";
 
     // ==================== FXML Paths: Shared/Other Screens ====================
     public static final String GUEST_FEEDBACK = "/com/hanson/hotelreservationsystem/guestFeedback.fxml";
@@ -256,17 +252,7 @@ public class NavigationService {
         navigateTo(ADMIN_FORM);
     }
 
-    public void goToAdminRoomDetails() {
-        navigateTo(ADMIN_ROOM_DETAILS);
-    }
-
-    public void goToAdminGuests() {
-        navigateTo(ADMIN_GUESTS);
-    }
-
-    public void goToAdminGuestDetails() {
-        navigateTo(ADMIN_GUEST_DETAILS);
-    }
+    public void goToAdminWaitlist(){ navigateTo(ADMIN_WAITLIST);}
 
     public void goToAdminLoyaltyDashboard() {
         navigateTo(ADMIN_LOYALTY_DASHBOARD);
@@ -278,14 +264,6 @@ public class NavigationService {
 
     public void goToAdminReports() {
         navigateTo(ADMIN_REPORTS);
-    }
-
-    public void goToAdminSettings() {
-        navigateTo(ADMIN_SETTINGS);
-    }
-
-    public void goToAdminActivityLog() {
-        navigateTo(ADMIN_ACTIVITY_LOG);
     }
 
     // ==================== Utility Methods ====================

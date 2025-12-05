@@ -1,5 +1,6 @@
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import javafx.scene.input.KeyEvent;
 import com.hanson.hotelreservationsystem.model.*;
 import com.hanson.hotelreservationsystem.model.enums.*;
 import com.hanson.hotelreservationsystem.service.*;
@@ -407,6 +408,16 @@ public class AdminFeedbackViewerController implements Initializable {
     }
 
     // ==================== Event Handlers ====================
+
+    @FXML
+    public void handleFilterChange(ActionEvent event) {
+        applyFilters();
+    }
+
+    @FXML
+    public void handleSearch(KeyEvent event) {
+        applyFilters();
+    }
 
     @FXML
     public void handleClearFilters(ActionEvent event) {

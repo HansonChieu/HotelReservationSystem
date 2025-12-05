@@ -5,6 +5,7 @@ import com.hanson.hotelreservationsystem.model.LoyaltyAccount;
 import com.hanson.hotelreservationsystem.model.LoyaltyTransaction;
 import com.hanson.hotelreservationsystem.model.Reservation;
 import com.hanson.hotelreservationsystem.model.enums.LoyaltyTransactionType;
+import com.hanson.hotelreservationsystem.repository.GuestRepository;
 import com.hanson.hotelreservationsystem.repository.LoyaltyAccountRepository;
 import com.hanson.hotelreservationsystem.repository.LoyaltyTransactionRepository;
 import com.hanson.hotelreservationsystem.config.LoyaltyConfig;
@@ -60,6 +61,17 @@ public class LoyaltyService {
     private LoyaltyService() {
         this.config = new LoyaltyConfig();
         initializeDefaultConfig();
+
+        // FIX: Auto-wire the singleton repository
+        this.loyaltyAccountRepository = LoyaltyAccountRepository.getInstance();
+
+        // Note: LoyaltyTransactionRepository is not a singleton in your code,
+        // so we need to grab the EntityManager from the AccountRepo to create it
+        if (this.loyaltyAccountRepository.getEntityManager() != null) {
+            this.transactionRepository = new LoyaltyTransactionRepository(
+                    this.loyaltyAccountRepository.getEntityManager()
+            );
+        }
     }
 
     /**
@@ -206,38 +218,52 @@ public class LoyaltyService {
     public LoyaltyAccount enrollGuest(Guest guest) {
         validateGuestForEnrollment(guest);
 
-        // Check if already enrolled
+        if (loyaltyAccountRepository == null) {
+            throw new IllegalStateException("LoyaltyAccountRepository is not initialized!");
+        }
+
         if (hasAccount(guest)) {
             throw new IllegalArgumentException("Guest is already enrolled in the loyalty program");
         }
 
-        // Create loyalty account using the entity's constructor
+        // 1. Create Account
         LoyaltyAccount account = new LoyaltyAccount(guest);
+        account.setPointsBalance(0);
+        account.setLifetimePoints(0);
+        account.setTier("BRONZE");
+        account.setActive(true);
 
-        // Save account
-        if (loyaltyAccountRepository != null) {
-            account = loyaltyAccountRepository.save(account);
-        }
+        guest.setLoyaltyMember(true);
+        guest.setLoyaltyAccount(account);
 
-        LOGGER.info("Enrolled new loyalty account: " + account.getLoyaltyNumber() +
-                " for " + guest.getFullName());
+        // 2. Initial Save (To generate ID)
+        account = loyaltyAccountRepository.save(account);
 
-        // Award welcome bonus using the entity's earnPoints method
+        GuestRepository.getInstance().save(guest);
+
+        LOGGER.info("Enrolled new loyalty account: " + account.getLoyaltyNumber() + " for " + guest.getFullName());
+
+        // 3. Handle Welcome Bonus
         if (config.getWelcomeBonus() > 0) {
-            account.earnPoints(config.getWelcomeBonus(), 1.0); // 1:1 for bonus points
+            // Update balance in object
+            account.earnPoints(config.getWelcomeBonus(), 1.0);
 
-            // Create transaction record for the welcome bonus
+            // Create Transaction Record
             LoyaltyTransaction transaction = new LoyaltyTransaction();
-            transaction.setLoyaltyAccount(account);
+            transaction.setLoyaltyAccount(account); // Link to Parent
             transaction.setTransactionType(LoyaltyTransactionType.BONUS);
             transaction.setPoints(config.getWelcomeBonus());
             transaction.setDescription("Welcome bonus for joining ARC Rewards");
             transaction.setBalanceAfter(account.getPointsBalance());
+
+            // Link Parent to Child
             account.addTransaction(transaction);
 
-            if (loyaltyAccountRepository != null) {
-                loyaltyAccountRepository.save(account);
-            }
+        }
+
+        // 4. Final Save (Updates balance and saves transaction if Cascading is on)
+        if (loyaltyAccountRepository != null) {
+            account = loyaltyAccountRepository.save(account);
         }
 
         return account;
@@ -547,6 +573,16 @@ public class LoyaltyService {
     }
 
     // ==================== Utility Methods ====================
+    /**
+     * Generate a unique loyalty number.
+     * Format: LOY + Current Timestamp (digits)
+     */
+    private String generateLoyaltyNumber() {
+        // Generates a string like "LOY1701234567"
+        // Uses system time to ensure relative uniqueness for this project scope
+        long number = System.currentTimeMillis();
+        return "LOY" + number;
+    }
 
     /**
      * Normalize phone number for consistent storage and lookup.

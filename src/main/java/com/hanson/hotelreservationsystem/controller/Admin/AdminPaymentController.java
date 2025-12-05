@@ -1,7 +1,11 @@
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import com.hanson.hotelreservationsystem.model.Guest;
+import com.hanson.hotelreservationsystem.model.LoyaltyAccount;
 import com.hanson.hotelreservationsystem.model.Payment;
 import com.hanson.hotelreservationsystem.model.Reservation;
+import com.hanson.hotelreservationsystem.repository.LoyaltyAccountRepository;
+import com.hanson.hotelreservationsystem.service.LoyaltyService;
 import com.hanson.hotelreservationsystem.service.NavigationService;
 import com.hanson.hotelreservationsystem.service.ReservationService;
 import com.hanson.hotelreservationsystem.session.AdminSession;
@@ -17,6 +21,7 @@ import javafx.scene.layout.VBox;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,12 +81,14 @@ public class AdminPaymentController implements Initializable {
     private final ReservationService reservationService;
     private final AdminSession adminSession;
     private final ActivityLogger activityLogger;
+    private final LoyaltyService loyaltyService;
 
     public AdminPaymentController() {
         this.navigationService = NavigationService.getInstance();
         this.reservationService = ReservationService.getInstance();
         this.adminSession = AdminSession.getInstance();
         this.activityLogger = ActivityLogger.getInstance();
+        this.loyaltyService = LoyaltyService.getInstance();
     }
 
     @Override
@@ -163,10 +170,47 @@ public class AdminPaymentController implements Initializable {
         } else if (selected == loyaltyToggle) {
             loyaltySection.setVisible(true);
             loyaltySection.setManaged(true);
-            // TODO: Load loyalty points from LoyaltyService here if implementing loyalty
+            loadLoyaltyData();
         }
 
         validateInput(); // Re-validate
+    }
+
+    private void loadLoyaltyData() {
+        Guest guest = currentReservation.getGuest();
+        if (guest == null) return;
+
+        // Use the service to find the account
+        Optional<LoyaltyAccount> accountOpt = loyaltyService.findAccountByEmailOrPhone(
+                guest.getEmail(), guest.getPhone()
+        );
+
+        if (accountOpt.isPresent()) {
+            LoyaltyAccount account = accountOpt.get();
+            int points = account.getPointsBalance();
+
+            // Update UI Labels
+            availablePointsLabel.setText(String.format("%,d Points", points));
+
+            // Calculate max value (assuming 100 points = $1.00 based on LoyaltyService defaults)
+            BigDecimal maxDollarValue = loyaltyService.calculateRedemptionValue(points);
+            pointsValueLabel.setText(String.format("Value: $%.2f", maxDollarValue));
+
+            // Configure Spinner
+            int maxRedeemable = loyaltyService.calculateMaxRedeemablePoints(account, currentReservation.getTotalAmount());
+            SpinnerValueFactory<Integer> valueFactory =
+                    new SpinnerValueFactory.IntegerSpinnerValueFactory(0, maxRedeemable, 0, 100);
+            pointsSpinner.setValueFactory(valueFactory);
+
+            // Add listener to update redemption preview
+            pointsSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+                BigDecimal redemptionVal = loyaltyService.calculateRedemptionValue(newVal);
+                pointsDiscountLabel.setText(String.format("Redemption: -$%.2f", redemptionVal));
+            });
+        } else {
+            availablePointsLabel.setText("No Loyalty Account Found");
+            pointsSpinner.setDisable(true);
+        }
     }
 
     @FXML
@@ -241,10 +285,27 @@ public class AdminPaymentController implements Initializable {
     @FXML
     public void handleProcessPayment(ActionEvent event) {
         try {
+            if (paymentMethodGroup.getSelectedToggle() == loyaltyToggle) {
+                // Logic for Loyalty Redemption
+                int pointsToRedeem = pointsSpinner.getValue();
+                if (pointsToRedeem > 0) {
+                    // Apply discount via Service
+                    reservationService.applyLoyaltyDiscount(currentReservation, pointsToRedeem);
+
+                    activityLogger.logActivity(adminSession.getActorName(),
+                            "REDEEM_POINTS", "RESERVATION",
+                            currentReservation.getConfirmationNumber(),
+                            "Redeemed " + pointsToRedeem + " points");
+
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Points redeemed successfully!");
+                    navigationService.goToAdminReservationDetails(); // Return to details to see new balance
+                    return;
+                }
+            }
             BigDecimal amount = new BigDecimal(paymentAmountField.getText());
             String method = "CASH";
             if (paymentMethodGroup.getSelectedToggle() == cardToggle) method = "CARD";
-            if (paymentMethodGroup.getSelectedToggle() == loyaltyToggle) method = "LOYALTY";
+
 
             // Process via Service
             Payment payment = reservationService.processPayment(currentReservation, amount, method);
@@ -275,6 +336,14 @@ public class AdminPaymentController implements Initializable {
     public void handleCancel(ActionEvent event) {
         // Just go back to details without doing anything
         navigationService.goToAdminReservationDetails();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private String formatCurrency(BigDecimal amount) {

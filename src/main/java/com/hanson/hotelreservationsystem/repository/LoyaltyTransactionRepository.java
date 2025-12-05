@@ -32,14 +32,35 @@ public class LoyaltyTransactionRepository {
      * Save a loyalty transaction.
      */
     public LoyaltyTransaction save(LoyaltyTransaction transaction) {
-        if (transaction.getId() == null) {
-            entityManager.persist(transaction);
-            LOGGER.info("Created new loyalty transaction: " + transaction.getTransactionType());
+        if (entityManager == null) {
             return transaction;
-        } else {
-            LoyaltyTransaction merged = entityManager.merge(transaction);
-            LOGGER.info("Updated loyalty transaction: " + transaction.getId());
-            return merged;
+        }
+
+        boolean startedTransaction = false;
+        try {
+            if (!entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().begin();
+                startedTransaction = true;
+            }
+
+            if (transaction.getId() == null) {
+                entityManager.persist(transaction);
+                LOGGER.info("Created new loyalty transaction: " + transaction.getTransactionType());
+            } else {
+                transaction = entityManager.merge(transaction);
+                LOGGER.info("Updated loyalty transaction: " + transaction.getId());
+            }
+
+            if (startedTransaction) {
+                entityManager.getTransaction().commit();
+            }
+
+            return transaction;
+        } catch (Exception e) {
+            if (startedTransaction && entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw e;
         }
     }
 

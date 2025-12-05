@@ -29,6 +29,7 @@
                   <Insets bottom="15" left="20" right="20" top="15" />
                </padding>
                <children>
+                  <Button mnemonicParsing="false" onAction="#handleBack" prefWidth="50.0" text="Back" />
                   <Label styleClass="page-title" text="Reports &amp; Analytics">
                      <font>
                         <Font size="18.0" />

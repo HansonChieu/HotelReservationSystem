@@ -1,5 +1,6 @@
 package com.hanson.hotelreservationsystem.controller.Kiosk;
 
+import com.hanson.hotelreservationsystem.model.LoyaltyAccount;
 import com.hanson.hotelreservationsystem.service.NavigationService;
 import com.hanson.hotelreservationsystem.service.LoyaltyService;
 import com.hanson.hotelreservationsystem.service.ValidationService;
@@ -192,9 +193,17 @@ public class KioskGuestDetailsController implements Initializable {
             specialRequestsField.setText(bookingSession.getSpecialRequests());
         }
 
-        // If already a loyalty member, show info
         if (bookingSession.isLoyaltyMember()) {
-            showLoyaltyMemberInfo();
+            // Reconstruct a temporary account object from session data
+            LoyaltyAccount tempAccount =
+                    new LoyaltyAccount();
+
+            tempAccount.setLoyaltyNumber(bookingSession.getLoyaltyNumber());
+            tempAccount.setPointsBalance(bookingSession.getLoyaltyPoints());
+            // Default others since they aren't in session
+            tempAccount.setEnrollmentDate(java.time.LocalDate.now());
+
+            showLoyaltyMemberInfo(tempAccount);
         }
     }
 
@@ -351,24 +360,79 @@ public class KioskGuestDetailsController implements Initializable {
         String email = getFieldValue(emailField);
         String phone = getFieldValue(phoneField);
 
-        if (email.isEmpty() && phone.isEmpty()) {
+        // Only check if we have enough info
+        if (email.isEmpty() && phone.length() < 10) {
             return;
         }
 
+
         loyaltyChecked = true;
 
-        // In production, this would call loyaltyService.findMember(email, phone)
         if (loyaltyService != null) {
-            // LoyaltyMember member = loyaltyService.findMemberByEmailOrPhone(email, phone);
-            // if (member != null) {
-            //     isExistingMember = true;
-            //     showLoyaltyMemberInfo(member);
-            // } else {
-            //     showLoyaltyRegistrationPrompt();
-            // }
+            // 1. Perform the actual DB lookup
+            java.util.Optional<com.hanson.hotelreservationsystem.model.LoyaltyAccount> accountOpt =
+                    loyaltyService.findAccountByEmailOrPhone(email, phone);
+
+            if (accountOpt.isPresent()) {
+                // 2. FOUND: Update Session and Show Member Info
+                LoyaltyAccount account = accountOpt.get();
+
+                // Update Session so data persists to booking
+                bookingSession.setLoyaltyMember(true);
+                bookingSession.setLoyaltyNumber(account.getLoyaltyNumber());
+                bookingSession.setLoyaltyPoints(account.getPointsBalance());
+
+                isExistingMember = true;
+
+                showLoyaltyMemberInfo(account); // Call overloaded method
+
+            } else {
+                // 3. NOT FOUND: Show Registration Prompt
+                isExistingMember = false;
+                showLoyaltyRegistrationPrompt();
+            }
         } else {
-            // For demo, simulate no existing member
+            // Fallback if service is missing
             showLoyaltyRegistrationPrompt();
+        }
+    }
+
+    // 2. Helper to update UI with real data
+    private void showLoyaltyMemberInfo(LoyaltyAccount member) {
+        if (loyaltyStatusBox != null) {
+            loyaltyStatusBox.setVisible(true);
+            loyaltyStatusBox.setManaged(true);
+            // Make it look "Premium" if they are a member
+            loyaltyStatusBox.setStyle("-fx-background-color: #f0f8ff; -fx-border-color: #007bff; -fx-border-width: 2px; -fx-padding: 15; -fx-background-radius: 10; -fx-border-radius: 10;");
+        }
+
+        if (loyaltyInfoBox != null) {
+            loyaltyInfoBox.setVisible(true);
+            loyaltyInfoBox.setManaged(true);
+        }
+
+        if (registrationPromptBox != null) {
+            registrationPromptBox.setVisible(false);
+            registrationPromptBox.setManaged(false);
+        }
+
+        // Populate Real Data
+        if (loyaltyNumberLabel != null) loyaltyNumberLabel.setText(member.getLoyaltyNumber());
+        if (pointsEarnedLabel != null) pointsEarnedLabel.setText(String.format("%,d pts", member.getPointsBalance()));
+
+        // Add Tier Badge logic
+        if (member.getTier() != null && bonusPointsLabel != null) {
+            String tier = member.getTier(); // BRONZE, SILVER, GOLD, PLATINUM
+            bonusPointsLabel.setText("Status: " + tier + " MEMBER");
+
+            // Dynamic Color based on Tier
+            String color = switch(tier) {
+                case "PLATINUM" -> "#E5E4E2";
+                case "GOLD" -> "#FFD700";
+                case "SILVER" -> "#C0C0C0";
+                default -> "#CD7F32";
+            };
+            bonusPointsLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold; -fx-background-color: #333; -fx-padding: 5; -fx-background-radius: 3;");
         }
     }
 
@@ -382,35 +446,6 @@ public class KioskGuestDetailsController implements Initializable {
         }
     }
 
-    /**
-     * Show loyalty member information for existing members.
-     */
-    private void showLoyaltyMemberInfo() {
-        if (loyaltyStatusBox != null) {
-            loyaltyStatusBox.setVisible(true);
-            loyaltyStatusBox.setManaged(true);
-        }
-
-        if (loyaltyInfoBox != null) {
-            loyaltyInfoBox.setVisible(true);
-            loyaltyInfoBox.setManaged(true);
-        }
-
-        if (registrationPromptBox != null) {
-            registrationPromptBox.setVisible(false);
-            registrationPromptBox.setManaged(false);
-        }
-
-        // Update labels with member info
-        if (loyaltyNumberLabel != null) {
-            loyaltyNumberLabel.setText(bookingSession.getLoyaltyNumber());
-        }
-        if (pointsEarnedLabel != null) {
-            pointsEarnedLabel.setText(bookingSession.getLoyaltyPoints() + " pts");
-        }
-
-        isExistingMember = true;
-    }
 
     /**
      * Show loyalty registration prompt for new guests.

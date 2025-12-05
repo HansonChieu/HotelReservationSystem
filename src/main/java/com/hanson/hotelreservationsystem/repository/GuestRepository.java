@@ -59,7 +59,14 @@ public class GuestRepository {
             return guest;
         }
 
+        boolean startedTransaction = false;
         try {
+            // Start transaction if one isn't already active
+            if (!entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().begin();
+                startedTransaction = true;
+            }
+
             if (guest.getId() == null) {
                 entityManager.persist(guest);
                 LOGGER.info("Created new guest: " + guest.getFullName());
@@ -67,9 +74,18 @@ public class GuestRepository {
                 guest = entityManager.merge(guest);
                 LOGGER.info("Updated guest: " + guest.getFullName());
             }
+
+            // Commit only if we started it
+            if (startedTransaction) {
+                entityManager.getTransaction().commit();
+            }
+
             return guest;
         } catch (Exception e) {
             LOGGER.severe("Error saving guest: " + e.getMessage());
+            if (startedTransaction && entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
             throw e;
         }
     }

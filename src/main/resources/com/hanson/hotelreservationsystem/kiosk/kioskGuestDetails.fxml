@@ -312,7 +312,7 @@
                         </VBox>
 
                         <!-- Registration Prompt -->
-                        <VBox fx:id="registrationPromptBox" managed="false" spacing="10.0" visible="false">
+                        <VBox fx:id="registrationPromptBox" managed="false" spacing="10.0" visible="false" style="-fx-background-color: linear-gradient(to right, #fffde7, #ffffff); -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0); -fx-padding: 15; -fx-background-radius: 5;">
                             <children>
                                 <Label text="No membership found" textFill="#6c757d">
                                     <font>

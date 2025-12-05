@@ -1,5 +1,6 @@
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import com.hanson.hotelreservationsystem.repository.GuestRepository;
 import com.hanson.hotelreservationsystem.model.*;
 import com.hanson.hotelreservationsystem.model.enums.*;
 import com.hanson.hotelreservationsystem.service.*;
@@ -14,6 +15,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -102,6 +106,7 @@ public class AdminLoyaltyDashboardController implements Initializable {
     private LoyaltyService loyaltyService;
     private AdminSession adminSession;
     private ActivityLogger activityLogger;
+    private GuestRepository guestRepository = GuestRepository.getInstance();
 
     public AdminLoyaltyDashboardController() {
         this.navigationService = NavigationService.getInstance();
@@ -345,6 +350,107 @@ public class AdminLoyaltyDashboardController implements Initializable {
         }
     }
 
+    @FXML
+    public void handleEnrollMember(ActionEvent event) {
+        // 1. Create Dialog
+        Dialog<Guest> dialog = new Dialog<>();
+        dialog.setTitle("Enroll New Member");
+        dialog.setHeaderText("Enter Guest Details");
+
+        ButtonType enrollBtnType = new ButtonType("Enroll", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(enrollBtnType, ButtonType.CANCEL);
+
+        // 2. Create Fields
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField firstNameFld = new TextField();
+        firstNameFld.setPromptText("First Name");
+        TextField lastNameFld = new TextField();
+        lastNameFld.setPromptText("Last Name");
+        TextField emailFld = new TextField();
+        emailFld.setPromptText("Email Address");
+        TextField phoneFld = new TextField();
+        phoneFld.setPromptText("Phone Number");
+
+        grid.add(new Label("First Name:*"), 0, 0);
+        grid.add(firstNameFld, 1, 0);
+        grid.add(new Label("Last Name:*"), 0, 1);
+        grid.add(lastNameFld, 1, 1);
+        grid.add(new Label("Email:*"), 0, 2);
+        grid.add(emailFld, 1, 2);
+        grid.add(new Label("Phone:*"), 0, 3);
+        grid.add(phoneFld, 1, 3);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // 3. Convert Result to Guest Object
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == enrollBtnType) {
+                // Basic Validation
+                if (firstNameFld.getText().isEmpty() || lastNameFld.getText().isEmpty() ||
+                        emailFld.getText().isEmpty() || phoneFld.getText().isEmpty()) {
+                    return null; // Will be caught as empty result
+                }
+
+                Guest g = new Guest();
+                g.setFirstName(firstNameFld.getText().trim());
+                g.setLastName(lastNameFld.getText().trim());
+                g.setEmail(emailFld.getText().trim());
+                g.setPhone(phoneFld.getText().trim());
+                // Set defaults for required fields not in form
+                g.setCountry("Unknown");
+                return g;
+            }
+            return null;
+        });
+
+        Optional<Guest> result = dialog.showAndWait();
+
+        // 4. Process Enrollment
+        result.ifPresent(transientGuest -> {
+            try {
+                // A. Check if already a loyalty member
+                if (loyaltyService.findAccountByEmailOrPhone(transientGuest.getEmail(), transientGuest.getPhone()).isPresent()) {
+                    showAlert(Alert.AlertType.WARNING, "Duplicate",
+                            "A loyalty account already exists for " + transientGuest.getEmail());
+                    return;
+                }
+
+                // B. Find or Create Guest in DB
+                // This prevents creating duplicate Guest records if they visited before but weren't members
+                Guest guestToEnroll;
+                Optional<Guest> existingGuest = guestRepository.findByEmail(transientGuest.getEmail());
+
+                if (existingGuest.isPresent()) {
+                    guestToEnroll = existingGuest.get();
+                    LOGGER.info("Enrolling existing guest: " + guestToEnroll.getFullName());
+                } else {
+                    // Create new guest record
+                    guestToEnroll = guestRepository.save(transientGuest);
+                }
+
+                // C. Create Loyalty Account
+                LoyaltyAccount newAccount = loyaltyService.enrollGuest(guestToEnroll);
+
+                // D. Success
+                showAlert(Alert.AlertType.INFORMATION, "Success",
+                        "Enrolled " + guestToEnroll.getFullName() + "\nLoyalty Number: " + newAccount.getLoyaltyNumber());
+
+                logActivity("ENROLL_MEMBER", "LOYALTY", newAccount.getLoyaltyNumber(),
+                        "Enrolled new member: " + guestToEnroll.getFullName());
+
+                // E. Refresh Table
+                loadLoyaltyData();
+
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Enrollment failed", e);
+                showAlert(Alert.AlertType.ERROR, "Error", "Enrollment failed: " + e.getMessage());
+            }
+        });
+    }
+
     private void updateMemberDetails(LoyaltyAccount member) {
         if (member == null) {
             clearMemberDetails();
@@ -373,9 +479,8 @@ public class AdminLoyaltyDashboardController implements Initializable {
         memberTransactions.clear();
         if (member == null || loyaltyService == null) return;
 
-        // In production: memberTransactions.addAll(loyaltyService.getTransactionHistory(member));
-        // Or use the transactions from the account directly:
-        // memberTransactions.addAll(member.getTransactions());
+        memberTransactions.addAll(loyaltyService.getTransactionHistory(member));
+
     }
 
     private void updateActionButtons(LoyaltyAccount selected) {
@@ -387,11 +492,27 @@ public class AdminLoyaltyDashboardController implements Initializable {
     }
 
     private void loadLoyaltyData() {
+        LOGGER.info("DEBUG: Starting loadLoyaltyData...");
         allMembers.clear();
-        // In production: allMembers.addAll(loyaltyService.getAllActiveAccounts());
+
+        if (loyaltyService != null) {
+            java.util.List<LoyaltyAccount> freshList = loyaltyService.getAllActiveAccounts();
+
+            LOGGER.info("DEBUG: LoyaltyService returned " + freshList.size() + " records.");
+
+            // Print names to verify the new person is in the list
+            for (LoyaltyAccount acc : freshList) {
+                String name = (acc.getGuest() != null) ? acc.getGuest().getFullName() : "Unknown";
+                LOGGER.info("DEBUG: Found member: " + name + " (" + acc.getLoyaltyNumber() + ")");
+            }
+            allMembers.addAll(freshList);
+        }else{
+            LOGGER.severe("DEBUG: LoyaltyService is NULL!");
+        }
 
         filteredMembers = new FilteredList<>(allMembers, p -> true);
         membersTable.setItems(filteredMembers);
+        membersTable.refresh(); // Force UI refresh
 
         LOGGER.info("Loaded " + allMembers.size() + " loyalty members");
     }
@@ -434,9 +555,23 @@ public class AdminLoyaltyDashboardController implements Initializable {
     }
 
     // ==================== Event Handlers ====================
+    @FXML
+    public void handleFilterChange(ActionEvent event) {
+        applyFilters();
+    }
+
+    @FXML
+    public void handleSearch(KeyEvent event) {
+        applyFilters();
+    }
 
     @FXML
     public void handleSearchMember(ActionEvent event) {
+        applyFilters();
+    }
+
+    @FXML
+    public void handleTierFilterChange(ActionEvent event) {
         applyFilters();
     }
 
@@ -511,12 +646,6 @@ public class AdminLoyaltyDashboardController implements Initializable {
                 showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number.");
             }
         });
-    }
-
-    @FXML
-    public void handleEnrollMember(ActionEvent event) {
-        showAlert(Alert.AlertType.INFORMATION, "Enroll Member",
-                "This would open a dialog to enroll a new loyalty member.");
     }
 
     @FXML

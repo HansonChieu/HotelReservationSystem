@@ -16,27 +16,57 @@ public class LoyaltyAccountRepository {
 
     private static final Logger LOGGER = Logger.getLogger(LoyaltyAccountRepository.class.getName());
 
-    private final EntityManager entityManager;
+    private static LoyaltyAccountRepository instance;
+    private EntityManager entityManager;
 
-    /**
-     * Constructor with EntityManager injection.
-     */
-    public LoyaltyAccountRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    // 2. Private Constructor
+    private LoyaltyAccountRepository() {}
+
+    // 3. Public Accessor
+    public static synchronized LoyaltyAccountRepository getInstance() {
+        if (instance == null) {
+            instance = new LoyaltyAccountRepository();
+        }
+        return instance;
     }
 
+    // 4. Setter for EntityManager (Used by ServiceInitializer)
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
     /**
      * Save or update a loyalty account.
      */
     public LoyaltyAccount save(LoyaltyAccount account) {
-        if (account.getId() == null) {
-            entityManager.persist(account);
-            LOGGER.info("Created new loyalty account: " + account.getLoyaltyNumber());
+        if (entityManager == null) {
             return account;
-        } else {
-            LoyaltyAccount merged = entityManager.merge(account);
-            LOGGER.info("Updated loyalty account: " + account.getLoyaltyNumber());
-            return merged;
+        }
+
+        boolean startedTransaction = false;
+        try {
+            if (!entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().begin();
+                startedTransaction = true;
+            }
+
+            if (account.getId() == null) {
+                entityManager.persist(account);
+                LOGGER.info("Created new loyalty account: " + account.getLoyaltyNumber());
+            } else {
+                account = entityManager.merge(account);
+                LOGGER.info("Updated loyalty account: " + account.getLoyaltyNumber());
+            }
+
+            if (startedTransaction) {
+                entityManager.getTransaction().commit();
+            }
+
+            return account;
+        } catch (Exception e) {
+            if (startedTransaction && entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw e;
         }
     }
 
@@ -198,5 +228,9 @@ public class LoyaltyAccountRepository {
                 Long.class);
         query.setParameter("guestId", guestId);
         return query.getSingleResult() > 0;
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
     }
 }

@@ -61,6 +61,10 @@ public class ServiceInitializer {
             guestRepository.setEntityManager(sharedEntityManager);
             LOGGER.info("  - GuestRepository initialized");
 
+            WaitlistRepository waitlistRepository = WaitlistRepository.getInstance();
+            waitlistRepository.setEntityManager(sharedEntityManager);
+            LOGGER.info("  - WaitlistRepository initialized");
+
 
             AdminRepository adminRepository = AdminRepository.getInstance();
             adminRepository.setEntityManager(sharedEntityManager);

@@ -240,6 +240,7 @@ public class AdminDashboardController implements Initializable {
         }
     }
 
+
     /**
      * Setup filter controls.
      */
@@ -873,26 +874,61 @@ public class AdminDashboardController implements Initializable {
         showAlert(Alert.AlertType.INFORMATION, "User Management", "User management functionality will be available in a future update.");
     }
 
+    /**
+     * Handle navigation to waitlist.
+     */
     @FXML
     public void handleOpenWaitlist(ActionEvent event) {
-        navigateToScreen("/com/hanson/hotelreservationsystem/admin/adminWaitlist.fxml");
+        LOGGER.info("Opening waitlist");
+        try {
+            navigationService.goToAdminWaitlist();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to open waitlist", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load waitlist.");
+        }
     }
 
+    /**
+     * Handle navigation to the Loyalty Dashboard.
+     */
     @FXML
     public void handleOpenLoyalty(ActionEvent event) {
-        navigateToScreen("/com/hanson/hotelreservationsystem/admin/adminLoyaltyDashboard.fxml");
+        LOGGER.info("Opening Loyalty Dashboard");
+        try {
+            navigationService.goToAdminLoyaltyDashboard();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to open Loyalty Dashboard", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load Loyalty Dashboard.");
+        }
     }
 
+    /**
+     * Handle navigation to the Feedback Viewer.
+     */
     @FXML
     public void handleOpenFeedback(ActionEvent event) {
-        navigateToScreen("/com/hanson/hotelreservationsystem/admin/adminFeedbackViewer.fxml");
+        LOGGER.info("Opening Feedback Viewer");
+        try {
+            navigationService.goToAdminFeedbackViewer();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to open Feedback Viewer", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load Feedback Viewer.");
+        }
     }
 
+    /**
+     * Handle navigation to Reports & Analytics.
+     */
     @FXML
     public void handleOpenReports(ActionEvent event) {
-        navigateToScreen("/com/hanson/hotelreservationsystem/admin/adminReports.fxml");
+        LOGGER.info("Opening Reports");
+        try {
+            navigationService.goToAdminReports();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to open Reports", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load Reports.");
+        }
     }
-
     // ==================== Pagination Handlers ====================
 
     @FXML
