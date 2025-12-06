@@ -30,8 +30,10 @@
             <property name="jakarta.persistence.jdbc.password" value="password"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+<!--            <property name="jakarta.persistence.schema-generation.scripts.action" value="create"/>-->
+<!--            <property name="jakarta.persistence.schema-generation.scripts.create-target" value="hotel_database_script.sql"/>-->
 
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.hbm2ddl.auto" value="validate"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
 

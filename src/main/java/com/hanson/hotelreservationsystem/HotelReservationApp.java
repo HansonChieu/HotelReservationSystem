@@ -32,6 +32,10 @@ import java.util.logging.Logger;
  This assignment represents my own work in accordance with Seneca Academic Policy.
  Signature: Hanson Chieu
  Date: December 05, 2025
+ Video: Part 1 : https://www.loom.com/share/31ae6e9887854ec88b174fae4c40fc36
+Part 2: https://www.loom.com/share/2a25e67de24243d5b2ad7beb32cc37c2
+ Part 3: https://www.loom.com/share/c0b8ddf48bed4627bb65aeb69c5a7fd4
+ Part 4: https://www.loom.com/share/37b84e6b6e534721b646ac524ee5ae7f
  **********************************************/
 public class HotelReservationApp extends Application {
 
