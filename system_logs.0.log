@@ -4205,3 +4205,270 @@
 2025-12-05 20:16:36,EntityManagerFactory closed
 2025-12-05 20:16:36,Services shut down successfully
 2025-12-05 20:16:36,Application shutdown complete
+2025-12-05 20:27:54,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 20:27:54,========================================
+2025-12-05 20:27:54,Initializing Services and Repositories
+2025-12-05 20:27:54,========================================
+2025-12-05 20:27:55,Creating EntityManagerFactory...
+2025-12-05 20:27:58,EntityManagerFactory created successfully
+2025-12-05 20:27:58,EntityManager created
+2025-12-05 20:27:58,Initializing repositories...
+2025-12-05 20:27:58,  - RoomRepository initialized
+2025-12-05 20:27:58,  - ReservationRepository initialized
+2025-12-05 20:27:58,  - GuestRepository initialized
+2025-12-05 20:27:58,  - WaitlistRepository initialized
+2025-12-05 20:27:58,Initializing services...
+2025-12-05 20:27:58,  - RoomService initialized
+2025-12-05 20:27:58,  - PricingService initialized
+2025-12-05 20:27:58,  - LoyaltyService initialized
+2025-12-05 20:27:58,  - ValidationService initialized
+2025-12-05 20:27:58,  - ReservationService initialized
+2025-12-05 20:27:58,Default user 'admin' already exists.
+2025-12-05 20:27:58,Default user 'manager' already exists.
+2025-12-05 20:27:58,Database already has 40 rooms - skipping sample data creation
+2025-12-05 20:27:58,Default user 'admin' already exists.
+2025-12-05 20:27:58,Default user 'manager' already exists.
+2025-12-05 20:27:58,========================================
+2025-12-05 20:27:58,All services initialized successfully!
+2025-12-05 20:27:58,========================================
+2025-12-05 20:27:58,✅ SUCCESS: Manually injected EntityManager into LoyaltyAccountRepository.
+2025-12-05 20:27:58,Application initialization complete
+2025-12-05 20:27:58,Starting Hotel Reservation Application...
+2025-12-05 20:27:59,Initializing Kiosk Welcome Screen
+2025-12-05 20:27:59,Application started successfully - Welcome screen displayed
+2025-12-05 20:28:03,User clicked Leave Feedback
+2025-12-05 20:28:03,Initializing Guest Feedback Screen
+2025-12-05 20:28:03,Navigated to: /com/hanson/hotelreservationsystem/guestFeedback.fxml
+2025-12-05 20:28:05,Rating selected: 4 stars
+2025-12-05 20:28:08,User submitting feedback
+2025-12-05 20:28:08,No active reservation ID in session. Cannot submit feedback.
+2025-12-05 20:28:09,Initializing Kiosk Welcome Screen
+2025-12-05 20:28:09,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskWelcome.fxml
+2025-12-05 20:28:11,User clicked Admin Login
+2025-12-05 20:28:11,Initializing Admin Login Screen
+2025-12-05 20:28:11,Navigated to: /com/hanson/hotelreservationsystem/admin/adminLogin.fxml
+2025-12-05 20:28:14,Login attempt initiated
+2025-12-05 20:28:14,Admin session started for: admin
+2025-12-05 20:28:14,Admin: admin,LOGIN_SUCCESS,ADMIN,admin,Admin logged in successfully
+2025-12-05 20:28:14,Successful login for admin: admin (Role: Administrator)
+2025-12-05 20:28:16,Initializing Admin Dashboard
+2025-12-05 20:28:16,Loading reservations
+2025-12-05 20:28:16,Loaded 2 reservations
+2025-12-05 20:28:16,Admin: admin,DASHBOARD_ACCESS,SYSTEM,N/A,Admin accessed dashboard
+2025-12-05 20:28:16,Dashboard view active - auto-refreshing data...
+2025-12-05 20:28:16,Loading reservations
+2025-12-05 20:28:16,Loaded 2 reservations
+2025-12-05 20:28:17,Navigated to: /com/hanson/hotelreservationsystem/admin/adminDashboard.fxml
+2025-12-05 20:29:15,Opening Feedback Viewer
+2025-12-05 20:29:15,Initializing Admin Feedback Viewer
+2025-12-05 20:29:15,Loaded 0 feedback entries
+2025-12-05 20:29:15,Admin: admin,VIEW_FEEDBACK,FEEDBACK,N/A,Admin accessed feedback viewer
+2025-12-05 20:29:15,Navigated to: /com/hanson/hotelreservationsystem/admin/adminFeedbackViewer.fxml
+2025-12-05 20:29:21,Shutting down Hotel Reservation Application...
+2025-12-05 20:29:21,Shutting down services...
+2025-12-05 20:29:21,EntityManagerFactory closed
+2025-12-05 20:29:21,Services shut down successfully
+2025-12-05 20:29:21,Application shutdown complete
+2025-12-05 20:30:29,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 20:30:29,========================================
+2025-12-05 20:30:29,Initializing Services and Repositories
+2025-12-05 20:30:29,========================================
+2025-12-05 20:30:29,Creating EntityManagerFactory...
+2025-12-05 20:30:32,EntityManagerFactory created successfully
+2025-12-05 20:30:32,EntityManager created
+2025-12-05 20:30:32,Initializing repositories...
+2025-12-05 20:30:32,  - RoomRepository initialized
+2025-12-05 20:30:32,  - ReservationRepository initialized
+2025-12-05 20:30:32,  - GuestRepository initialized
+2025-12-05 20:30:32,  - WaitlistRepository initialized
+2025-12-05 20:30:32,Initializing services...
+2025-12-05 20:30:32,  - RoomService initialized
+2025-12-05 20:30:32,  - PricingService initialized
+2025-12-05 20:30:32,  - LoyaltyService initialized
+2025-12-05 20:30:32,  - ValidationService initialized
+2025-12-05 20:30:32,  - ReservationService initialized
+2025-12-05 20:30:33,Default user 'admin' already exists.
+2025-12-05 20:30:33,Default user 'manager' already exists.
+2025-12-05 20:30:33,Database already has 40 rooms - skipping sample data creation
+2025-12-05 20:30:33,Default user 'admin' already exists.
+2025-12-05 20:30:33,Default user 'manager' already exists.
+2025-12-05 20:30:33,========================================
+2025-12-05 20:30:33,All services initialized successfully!
+2025-12-05 20:30:33,========================================
+2025-12-05 20:30:33,✅ SUCCESS: Manually injected EntityManager into LoyaltyAccountRepository.
+2025-12-05 20:30:33,Application initialization complete
+2025-12-05 20:30:33,Starting Hotel Reservation Application...
+2025-12-05 20:30:33,Initializing Kiosk Welcome Screen
+2025-12-05 20:30:34,Application started successfully - Welcome screen displayed
+2025-12-05 20:30:34,User clicked Start Booking - beginning new reservation flow
+2025-12-05 20:30:34,Initializing Kiosk Guest Count Screen (Step 1)
+2025-12-05 20:30:35,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskGuestCount.fxml
+2025-12-05 20:30:36,User clicked Next - validating guest count
+2025-12-05 20:30:36,Guest count saved: 2 adults, 0 children
+2025-12-05 20:30:36,Room suggestion: Recommended: Single Room, Deluxe Room, or Penthouse Room
+2025-12-05 20:30:36,Initializing Kiosk Date Selection Screen (Step 2)
+2025-12-05 20:30:36,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskDateSelection.fxml
+2025-12-05 20:30:43,User clicked Check Availability
+2025-12-05 20:30:44,Dates saved: Check-in December 5, 2025, Check-out December 8, 2025 (3 nights)
+2025-12-05 20:30:44,Selected dates include weekend - weekend rates may apply
+2025-12-05 20:30:44,Initializing Kiosk Room Selection Screen (Step 3)
+2025-12-05 20:30:44,Room availability loaded: {Single Room=14, Double Room=14, Deluxe Room=8, Penthouse Suite=2}
+2025-12-05 20:30:44,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskRoomSelection.fxml
+2025-12-05 20:30:46,User clicked Continue to Guest Details
+2025-12-05 20:30:46,Room selections saved: 1 room type(s)
+2025-12-05 20:30:46,Initializing Kiosk Guest Details Screen (Step 4)
+2025-12-05 20:30:46,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskGuestDetails.fxml
+2025-12-05 20:31:15,Guest opted to join loyalty program
+2025-12-05 20:31:17,User clicked Next - validating guest details
+2025-12-05 20:31:17,Guest details saved: Test Testingg
+2025-12-05 20:31:17,Initializing Kiosk Add-On Services Screen (Step 5)
+2025-12-05 20:31:17,Add-on prices: WiFi=$15.00, Breakfast=$25.00, Parking=$20.00, Spa=$50.00
+2025-12-05 20:31:17,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskAddOnServices.fxml
+2025-12-05 20:31:19,User clicked Next - proceeding to booking summary
+2025-12-05 20:31:19,Add-ons saved. Total: $0.00, Tax: $46.80, Grand Total: $406.80
+2025-12-05 20:31:19,Initializing Kiosk Booking Summary Screen
+2025-12-05 20:31:19,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskBookingSummary.fxml
+2025-12-05 20:31:27,User clicked Confirm Booking
+2025-12-05 20:31:27,Creating reservation from booking session
+2025-12-05 20:31:27,Created new guest: Test Testingg
+2025-12-05 20:31:27,Updated room: 102
+2025-12-05 20:31:27,Reservation created successfully: RES1764984687285849
+2025-12-05 20:31:27,Reservation confirmed: RES1764984687285849
+2025-12-05 20:31:27,Initializing Kiosk Confirmation Screen
+2025-12-05 20:31:27,Booking confirmed - Confirmation #: RES1764984687285849
+2025-12-05 20:31:27,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskConfirmation.fxml
+2025-12-05 20:31:31,User clicked Done - completing booking flow
+2025-12-05 20:31:31,Booking completed - Confirmation: RES1764984687285849, Guest: Test Testingg, Total: $406.80
+2025-12-05 20:31:31,Guest opted to leave feedback
+2025-12-05 20:31:31,Initializing Guest Feedback Screen
+2025-12-05 20:31:31,Navigated to: /com/hanson/hotelreservationsystem/guestFeedback.fxml
+2025-12-05 20:31:32,Rating selected: 4 stars
+2025-12-05 20:31:38,User submitting feedback
+2025-12-05 20:31:38,No active reservation ID in session. Cannot submit feedback.
+2025-12-05 20:31:44,Initializing Kiosk Welcome Screen
+2025-12-05 20:31:44,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskWelcome.fxml
+2025-12-05 20:31:46,Shutting down Hotel Reservation Application...
+2025-12-05 20:31:46,Shutting down services...
+2025-12-05 20:31:46,EntityManagerFactory closed
+2025-12-05 20:31:46,Services shut down successfully
+2025-12-05 20:31:46,Application shutdown complete
+2025-12-05 20:36:49,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 20:36:49,========================================
+2025-12-05 20:36:49,Initializing Services and Repositories
+2025-12-05 20:36:49,========================================
+2025-12-05 20:36:49,Creating EntityManagerFactory...
+2025-12-05 20:36:51,EntityManagerFactory created successfully
+2025-12-05 20:36:51,EntityManager created
+2025-12-05 20:36:51,Initializing repositories...
+2025-12-05 20:36:51,  - RoomRepository initialized
+2025-12-05 20:36:51,  - ReservationRepository initialized
+2025-12-05 20:36:51,  - GuestRepository initialized
+2025-12-05 20:36:51,  - WaitlistRepository initialized
+2025-12-05 20:36:51,Initializing services...
+2025-12-05 20:36:51,  - RoomService initialized
+2025-12-05 20:36:51,  - PricingService initialized
+2025-12-05 20:36:51,  - LoyaltyService initialized
+2025-12-05 20:36:51,  - ValidationService initialized
+2025-12-05 20:36:51,  - ReservationService initialized
+2025-12-05 20:36:52,Default user 'admin' already exists.
+2025-12-05 20:36:52,Default user 'manager' already exists.
+2025-12-05 20:36:52,Database already has 40 rooms - skipping sample data creation
+2025-12-05 20:36:52,Default user 'admin' already exists.
+2025-12-05 20:36:52,Default user 'manager' already exists.
+2025-12-05 20:36:52,========================================
+2025-12-05 20:36:52,All services initialized successfully!
+2025-12-05 20:36:52,========================================
+2025-12-05 20:36:52,✅ SUCCESS: Manually injected EntityManager into LoyaltyAccountRepository.
+2025-12-05 20:36:52,Application initialization complete
+2025-12-05 20:36:52,Starting Hotel Reservation Application...
+2025-12-05 20:36:52,Initializing Kiosk Welcome Screen
+2025-12-05 20:36:53,Application started successfully - Welcome screen displayed
+2025-12-05 20:36:58,User clicked Leave Feedback
+2025-12-05 20:36:58,Initializing Guest Feedback Screen
+2025-12-05 20:36:58,Navigated to: /com/hanson/hotelreservationsystem/guestFeedback.fxml
+2025-12-05 20:37:03,Rating selected: 4 stars
+2025-12-05 20:37:05,User submitting feedback
+2025-12-05 20:37:05,No active reservation ID in session. Cannot submit feedback.
+2025-12-05 20:37:07,Initializing Kiosk Welcome Screen
+2025-12-05 20:37:07,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskWelcome.fxml
+2025-12-05 20:37:09,Shutting down Hotel Reservation Application...
+2025-12-05 20:37:09,Shutting down services...
+2025-12-05 20:37:09,EntityManagerFactory closed
+2025-12-05 20:37:09,Services shut down successfully
+2025-12-05 20:37:09,Application shutdown complete
+2025-12-05 20:39:15,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 20:39:15,========================================
+2025-12-05 20:39:15,Initializing Services and Repositories
+2025-12-05 20:39:15,========================================
+2025-12-05 20:39:15,Creating EntityManagerFactory...
+2025-12-05 20:39:19,EntityManagerFactory created successfully
+2025-12-05 20:39:19,EntityManager created
+2025-12-05 20:39:19,Initializing repositories...
+2025-12-05 20:39:19,  - RoomRepository initialized
+2025-12-05 20:39:19,  - ReservationRepository initialized
+2025-12-05 20:39:19,  - GuestRepository initialized
+2025-12-05 20:39:19,  - WaitlistRepository initialized
+2025-12-05 20:39:19,Initializing services...
+2025-12-05 20:39:19,  - RoomService initialized
+2025-12-05 20:39:19,  - PricingService initialized
+2025-12-05 20:39:19,  - LoyaltyService initialized
+2025-12-05 20:39:19,  - ValidationService initialized
+2025-12-05 20:39:19,  - ReservationService initialized
+2025-12-05 20:39:19,Default user 'admin' already exists.
+2025-12-05 20:39:19,Default user 'manager' already exists.
+2025-12-05 20:39:19,Database already has 40 rooms - skipping sample data creation
+2025-12-05 20:39:19,Default user 'admin' already exists.
+2025-12-05 20:39:19,Default user 'manager' already exists.
+2025-12-05 20:39:19,========================================
+2025-12-05 20:39:19,All services initialized successfully!
+2025-12-05 20:39:19,========================================
+2025-12-05 20:39:19,✅ SUCCESS: Manually injected EntityManager into LoyaltyAccountRepository.
+2025-12-05 20:39:19,Application initialization complete
+2025-12-05 20:39:19,Starting Hotel Reservation Application...
+2025-12-05 20:39:20,Initializing Kiosk Welcome Screen
+2025-12-05 20:39:20,Application started successfully - Welcome screen displayed
+2025-12-05 20:39:21,Shutting down Hotel Reservation Application...
+2025-12-05 20:39:21,Shutting down services...
+2025-12-05 20:39:21,EntityManagerFactory closed
+2025-12-05 20:39:21,Services shut down successfully
+2025-12-05 20:39:21,Application shutdown complete
+2025-12-05 20:42:55,LOGGING_STARTED,System,Startup,App,0,Logger initialized successfully
+2025-12-05 20:42:55,========================================
+2025-12-05 20:42:55,Initializing Services and Repositories
+2025-12-05 20:42:55,========================================
+2025-12-05 20:42:55,Creating EntityManagerFactory...
+2025-12-05 20:42:58,EntityManagerFactory created successfully
+2025-12-05 20:42:58,EntityManager created
+2025-12-05 20:42:58,Initializing repositories...
+2025-12-05 20:42:58,  - RoomRepository initialized
+2025-12-05 20:42:58,  - ReservationRepository initialized
+2025-12-05 20:42:58,  - GuestRepository initialized
+2025-12-05 20:42:58,  - WaitlistRepository initialized
+2025-12-05 20:42:58,Initializing services...
+2025-12-05 20:42:58,  - RoomService initialized
+2025-12-05 20:42:58,  - PricingService initialized
+2025-12-05 20:42:58,  - LoyaltyService initialized
+2025-12-05 20:42:58,  - ValidationService initialized
+2025-12-05 20:42:58,  - ReservationService initialized
+2025-12-05 20:42:59,Default user 'admin' already exists.
+2025-12-05 20:42:59,Default user 'manager' already exists.
+2025-12-05 20:42:59,Database already has 40 rooms - skipping sample data creation
+2025-12-05 20:42:59,Default user 'admin' already exists.
+2025-12-05 20:42:59,Default user 'manager' already exists.
+2025-12-05 20:42:59,========================================
+2025-12-05 20:42:59,All services initialized successfully!
+2025-12-05 20:42:59,========================================
+2025-12-05 20:42:59,✅ SUCCESS: Manually injected EntityManager into LoyaltyAccountRepository.
+2025-12-05 20:42:59,Application initialization complete
+2025-12-05 20:42:59,Starting Hotel Reservation Application...
+2025-12-05 20:42:59,Initializing Kiosk Welcome Screen
+2025-12-05 20:43:00,Application started successfully - Welcome screen displayed
+2025-12-05 20:43:02,User clicked Leave Feedback
+2025-12-05 20:43:21,User clicked Start Booking - beginning new reservation flow
+2025-12-05 20:43:21,Initializing Kiosk Guest Count Screen (Step 1)
+2025-12-05 20:43:21,Navigated to: /com/hanson/hotelreservationsystem/kiosk/kioskGuestCount.fxml
+2025-12-05 20:43:24,Shutting down Hotel Reservation Application...
+2025-12-05 20:43:24,Shutting down services...
+2025-12-05 20:43:24,EntityManagerFactory closed
+2025-12-05 20:43:24,Services shut down successfully
+2025-12-05 20:43:24,Application shutdown complete

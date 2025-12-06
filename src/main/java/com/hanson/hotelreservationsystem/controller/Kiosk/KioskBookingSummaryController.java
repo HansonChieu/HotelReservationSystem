@@ -409,8 +409,14 @@ public class KioskBookingSummaryController implements Initializable {
 
             if (confirmationNumber != null) {
                 bookingSession.setConfirmationNumber(confirmationNumber);
+                Optional<Reservation> res = reservationService.findByConfirmationNumber(confirmationNumber);
+                if (res.isPresent()) {
+                    bookingSession.setReservationId(res.get().getId());
+                    LOGGER.info("Stored Reservation ID " + res.get().getId() + " in session for feedback.");
+                } else {
+                    LOGGER.warning("Could not retrieve Reservation ID for confirmation: " + confirmationNumber);
+                }
                 LOGGER.info("Reservation confirmed: " + confirmationNumber);
-
                 // Navigate to confirmation screen
                 navigationService.goToConfirmation();
             } else {

@@ -210,14 +210,13 @@ public class KioskConfirmationController implements Initializable {
         feedbackAlert.setContentText("Your feedback helps us improve our guest experience.");
 
         feedbackAlert.showAndWait().ifPresent(response -> {
-            // Reset session for next guest
-            bookingSession.reset();
 
             if (response == javafx.scene.control.ButtonType.OK) {
                 LOGGER.info("Guest opted to leave feedback");
                 navigationService.goToFeedback();
             } else {
                 LOGGER.info("Guest declined feedback - returning to welcome");
+                bookingSession.reset();
                 navigationService.goToWelcome();
             }
         });

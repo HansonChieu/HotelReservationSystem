@@ -78,6 +78,7 @@ public class GuestFeedbackController implements Initializable {
     public GuestFeedbackController() {
         this.navigationService = NavigationService.getInstance();
         this.bookingSession = BookingSession.getInstance();
+        this.feedbackService = FeedbackService.getInstance();
     }
 
     /**
@@ -323,25 +324,25 @@ public class GuestFeedbackController implements Initializable {
     private void submitFeedback() {
         String comment = getComment();
 
-        // In production, this would call feedbackService.submitFeedback(...)
-        if (feedbackService != null) {
-            // feedbackService.submitFeedback(
-            //     bookingSession.getReservationId(),
-            //     bookingSession.getEmail(),
-            //     currentRating,
-            //     comment
-            // );
+        // Retrieve data from the singleton session
+        Long reservationId = bookingSession.getReservationId();
+        String guestEmail = bookingSession.getEmail();
+
+        if (reservationId == null) {
+            LOGGER.warning("No active reservation ID in session. Cannot submit feedback.");
+            return;
         }
 
-        // Generate sentiment tag based on rating (simple implementation)
-        String sentimentTag = determineSentimentTag(currentRating, comment);
+        if (feedbackService != null) {
+            feedbackService.submitFeedback(
+                    reservationId,
+                    guestEmail,
+                    currentRating,
+                    comment
+            );
+        }
 
-        LOGGER.info(String.format(
-                "Feedback submitted - Rating: %d stars, Sentiment: %s, Comment: %s",
-                currentRating,
-                sentimentTag,
-                comment.isEmpty() ? "(none)" : comment.substring(0, Math.min(50, comment.length())) + "..."
-        ));
+        LOGGER.info("Feedback submitted successfully.");
     }
 
     /**

@@ -100,6 +100,7 @@ public class AdminFeedbackViewerController implements Initializable {
         this.navigationService = NavigationService.getInstance();
         this.adminSession = AdminSession.getInstance();
         this.activityLogger = ActivityLogger.getInstance();
+        this.feedbackService = FeedbackService.getInstance();
     }
 
     public AdminFeedbackViewerController(NavigationService navigationService,
@@ -341,7 +342,11 @@ public class AdminFeedbackViewerController implements Initializable {
 
     private void loadFeedbackData() {
         allFeedback.clear();
-        // In production: allFeedback.addAll(feedbackService.findAll());
+
+        // Fetch actual data from DB
+        if (feedbackService != null) {
+            allFeedback.addAll(feedbackService.findAll());
+        }
 
         filteredFeedback = new FilteredList<>(allFeedback, p -> true);
         feedbackTable.setItems(filteredFeedback);
