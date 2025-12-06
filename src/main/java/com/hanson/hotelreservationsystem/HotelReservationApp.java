@@ -21,6 +21,18 @@ import java.util.logging.Logger;
 /**
  * Main application launcher for the ARC Hotel Reservation System.
  */
+
+/**********************************************
+ Project
+ Course: Java Programming - Fall 2025
+ Last Name: Chieu
+ First Name: Hanson
+ ID: 173632233
+ Section: NCC
+ This assignment represents my own work in accordance with Seneca Academic Policy.
+ Signature: Hanson Chieu
+ Date: December 05, 2025
+ **********************************************/
 public class HotelReservationApp extends Application {
 
     private static final Logger LOGGER = Logger.getLogger(HotelReservationApp.class.getName());
@@ -35,18 +47,9 @@ public class HotelReservationApp extends Application {
         super.init();
         LOGGER.info("Initializing Hotel Reservation Application...");
 
-        // Initialize the activity logger
         ActivityLogger.getInstance().initialize();
-
-        // ✅ CRITICAL: Initialize all services with their repository dependencies
-        // This is the central DI configuration per assignment requirements
         ServiceInitializer.initialize();
 
-        // ---------------------------------------------------------------------
-        // 🛠️ BUG FIX: Manually inject EntityManager into LoyaltyAccountRepository
-        // ---------------------------------------------------------------------
-        // Since ServiceInitializer is apparently missing the LoyaltyRepo setup,
-        // we borrow the working EntityManager from GuestRepository.
         try {
             EntityManager em = GuestRepository.getInstance().getEntityManager();
 
