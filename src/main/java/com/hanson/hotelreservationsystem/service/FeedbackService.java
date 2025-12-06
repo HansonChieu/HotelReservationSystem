@@ -7,9 +7,10 @@ import com.hanson.hotelreservationsystem.model.Reservation;
 import com.hanson.hotelreservationsystem.repository.FeedbackRepository;
 import com.hanson.hotelreservationsystem.repository.GuestRepository;
 import com.hanson.hotelreservationsystem.repository.ReservationRepository;
+import jakarta.persistence.EntityManager;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FeedbackService {
@@ -17,16 +18,12 @@ public class FeedbackService {
     private static final Logger LOGGER = Logger.getLogger(FeedbackService.class.getName());
     private static FeedbackService instance;
 
+    // Default repositories for read-only operations
     private final FeedbackRepository feedbackRepository;
-    private final ReservationRepository reservationRepository;
-    private final GuestRepository guestRepository;
 
     private FeedbackService() {
         this.feedbackRepository = FeedbackRepository.getInstance();
-        this.reservationRepository = ReservationRepository.getInstance();
-        this.guestRepository = GuestRepository.getInstance();
 
-        // Ensure repositories have EntityManager
         if (JPAUtil.isInitialized()) {
             this.feedbackRepository.setEntityManager(JPAUtil.createEntityManager());
         }
@@ -41,39 +38,59 @@ public class FeedbackService {
 
     /**
      * Submit new feedback linked to a reservation.
+     * Uses a fresh EntityManager to ensure transactional integrity and avoid session conflicts.
      */
     public void submitFeedback(Long reservationId, String guestEmail, int rating, String comments) {
-        // 1. Validate inputs
-        if (reservationId == null) {
-            throw new IllegalArgumentException("Reservation ID is required");
+        LOGGER.info("Starting feedback submission transaction...");
+
+        // 1. Create a FRESH EntityManager for this transaction
+        EntityManager em = JPAUtil.createEntityManager();
+
+        try {
+            em.getTransaction().begin();
+
+            // 2. Create LOCAL repositories linked to this single EntityManager
+            ReservationRepository localResRepo = new ReservationRepository(em);
+            GuestRepository localGuestRepo = new GuestRepository(em);
+            FeedbackRepository localFeedbackRepo = new FeedbackRepository(em);
+
+            // 3. Find Dependencies (Managed by 'em')
+            if (reservationId == null) throw new IllegalArgumentException("Reservation ID is required");
+
+            Reservation reservation = localResRepo.findById(reservationId)
+                    .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
+
+            // Get Guest (attached to 'em' via reservation)
+            Guest guest = reservation.getGuest();
+            if (guest == null) {
+                guest = localGuestRepo.findByEmail(guestEmail)
+                        .orElseThrow(() -> new IllegalArgumentException("Guest not found: " + guestEmail));
+            }
+
+            // 4. Create and Save Feedback
+            Feedback feedback = new Feedback(reservation, guest, rating, comments);
+            feedback.autoAssignBasicSentiment();
+
+            // Save feedback (uses 'em')
+            localFeedbackRepo.save(feedback);
+
+            // Link back to reservation (optional, but good for data consistency)
+            reservation.setFeedback(feedback);
+            localResRepo.save(reservation);
+
+            // 5. Commit Transaction
+            em.getTransaction().commit();
+            LOGGER.info("Feedback submitted successfully for Reservation #" + reservation.getConfirmationNumber());
+
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            LOGGER.log(Level.SEVERE, "Failed to submit feedback", e);
+            throw e; // Re-throw so controller knows it failed
+        } finally {
+            em.close(); // Clean up
         }
-
-        // 2. Find dependencies
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
-
-        // We can use the guest from the reservation directly to ensure it matches
-        Guest guest = reservation.getGuest();
-        if (guest == null) {
-            // Fallback lookup if reservation guest is somehow null
-            guest = guestRepository.findByEmail(guestEmail)
-                    .orElseThrow(() -> new IllegalArgumentException("Guest not found: " + guestEmail));
-        }
-
-        // 3. Create Feedback
-        Feedback feedback = new Feedback(reservation, guest, rating, comments);
-
-        // 4. Run business logic (Sentiment Analysis)
-        feedback.autoAssignBasicSentiment();
-
-        // 5. Save
-        feedbackRepository.save(feedback);
-
-        // 6. Update reservation to link this feedback (optional, if bidirectional)
-        reservation.setFeedback(feedback);
-        reservationRepository.save(reservation);
-
-        LOGGER.info("Feedback submitted for Reservation #" + reservation.getConfirmationNumber());
     }
 
     /**

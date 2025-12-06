@@ -18,6 +18,10 @@ public class FeedbackRepository {
 
     private FeedbackRepository() {}
 
+    public FeedbackRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     public static synchronized FeedbackRepository getInstance() {
         if (instance == null) {
             instance = new FeedbackRepository();
