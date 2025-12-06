@@ -121,6 +121,9 @@ public class KioskRoomSelectionController implements Initializable {
     public KioskRoomSelectionController() {
         this.navigationService = NavigationService.getInstance();
         this.bookingSession = BookingSession.getInstance();
+        // FIX: Initialize RoomService and PricingService here
+        this.roomService = RoomService.getInstance();
+        this.pricingService = PricingService.getInstance();
     }
 
     /**
@@ -152,19 +155,19 @@ public class KioskRoomSelectionController implements Initializable {
      * Load room availability for the selected dates.
      */
     private void loadRoomAvailability() {
-        // In production, this would call roomService.getAvailability(checkIn, checkOut)
-        // For now, use default values
-        roomAvailability.put(RoomType.SINGLE, 4);
-        roomAvailability.put(RoomType.DOUBLE, 3);
-        roomAvailability.put(RoomType.DELUXE, 3);
-        roomAvailability.put(RoomType.PENTHOUSE, 1);
-
-        // If room service is available, use it
-        if (roomService != null && bookingSession.getCheckInDate() != null) {
-            // roomAvailability = roomService.getAvailability(
-            //     bookingSession.getCheckInDate(),
-            //     bookingSession.getCheckOutDate()
-            // );
+        // FIX: Use RoomService to get real availability instead of hardcoded values
+        if (roomService != null && bookingSession.getCheckInDate() != null && bookingSession.getCheckOutDate() != null) {
+            roomAvailability = roomService.getAvailabilityByType(
+                    bookingSession.getCheckInDate(),
+                    bookingSession.getCheckOutDate()
+            );
+        } else {
+            // Fallback default if service is missing or dates invalid
+            LOGGER.warning("Unable to load availability: Service null or dates missing.");
+            roomAvailability.put(RoomType.SINGLE, 0);
+            roomAvailability.put(RoomType.DOUBLE, 0);
+            roomAvailability.put(RoomType.DELUXE, 0);
+            roomAvailability.put(RoomType.PENTHOUSE, 0);
         }
 
         LOGGER.info("Room availability loaded: " + roomAvailability);
@@ -189,9 +192,13 @@ public class KioskRoomSelectionController implements Initializable {
 
         int available = roomAvailability.getOrDefault(roomType, 0);
 
+        // Ensure max is at least 0 to prevent exception if available is 0
+        int maxVal = Math.max(0, available);
+
         SpinnerValueFactory<Integer> factory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, available, 0);
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, maxVal, 0);
         spinner.setValueFactory(factory);
+        // Prevent manual typing to avoid exceeding limits easily
         spinner.setEditable(false);
 
         // Bind count property to spinner value
@@ -203,7 +210,15 @@ public class KioskRoomSelectionController implements Initializable {
 
         // Update availability label
         if (availableLabel != null) {
-            availableLabel.setText("Available Rooms: " + available);
+            availableLabel.setText("Available: " + available);
+            // Visual cue if sold out
+            if (available == 0) {
+                availableLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+                availableLabel.setText("Sold Out");
+                spinner.setDisable(true);
+            } else {
+                availableLabel.setStyle("-fx-text-fill: #28a745; -fx-font-size: 12px;");
+            }
         }
     }
 
@@ -211,7 +226,6 @@ public class KioskRoomSelectionController implements Initializable {
      * Setup price labels with current pricing.
      */
     private void setupPriceLabels() {
-        // Get prices (would use PricingService in production with date-based pricing)
         updatePriceLabel(singlePriceLabel, RoomType.SINGLE);
         updatePriceLabel(doublePriceLabel, RoomType.DOUBLE);
         updatePriceLabel(deluxePriceLabel, RoomType.DELUXE);
@@ -230,11 +244,16 @@ public class KioskRoomSelectionController implements Initializable {
      * Get the current price for a room type.
      */
     private double getRoomPrice(RoomType roomType) {
-        // In production, use pricingService with date-based pricing
-        if (pricingService != null && bookingSession.getCheckInDate() != null) {
-            // return pricingService.getRoomPrice(roomType, bookingSession.getCheckInDate());
+        // Use PricingService for dynamic pricing (average nightly rate over the stay)
+        if (pricingService != null && bookingSession.getCheckInDate() != null && bookingSession.getCheckOutDate() != null) {
+            BigDecimal avgRate = pricingService.getAverageNightlyRate(
+                    roomType,
+                    bookingSession.getCheckInDate(),
+                    bookingSession.getCheckOutDate()
+            );
+            return avgRate.doubleValue();
         }
-        // FIX: Removed (long) cast to prevent losing cents
+        // Fallback to base price
         return roomType.getBasePrice();
     }
 
@@ -257,18 +276,23 @@ public class KioskRoomSelectionController implements Initializable {
      */
     private void loadExistingSelections() {
         for (RoomSelection selection : bookingSession.getSelectedRooms()) {
+            // We must ensure we don't exceed currently available rooms if availability changed
+            // since the last selection
+            int available = roomAvailability.getOrDefault(selection.getRoomType(), 0);
+            int quantity = Math.min(selection.getQuantity(), available);
+
             switch (selection.getRoomType()) {
                 case SINGLE:
-                    if (singleRoomSpinner != null) singleRoomSpinner.getValueFactory().setValue(selection.getQuantity());
+                    if (singleRoomSpinner != null) singleRoomSpinner.getValueFactory().setValue(quantity);
                     break;
                 case DOUBLE:
-                    if (doubleRoomSpinner != null) doubleRoomSpinner.getValueFactory().setValue(selection.getQuantity());
+                    if (doubleRoomSpinner != null) doubleRoomSpinner.getValueFactory().setValue(quantity);
                     break;
                 case DELUXE:
-                    if (deluxeRoomSpinner != null) deluxeRoomSpinner.getValueFactory().setValue(selection.getQuantity());
+                    if (deluxeRoomSpinner != null) deluxeRoomSpinner.getValueFactory().setValue(quantity);
                     break;
                 case PENTHOUSE:
-                    if (penthouseRoomSpinner != null) penthouseRoomSpinner.getValueFactory().setValue(selection.getQuantity());
+                    if (penthouseRoomSpinner != null) penthouseRoomSpinner.getValueFactory().setValue(quantity);
                     break;
             }
         }
@@ -420,7 +444,7 @@ public class KioskRoomSelectionController implements Initializable {
         if (singleCount.get() > 0) {
             bookingSession.getSelectedRooms().add(new RoomSelection(
                     RoomType.SINGLE, singleCount.get(),
-                    getRoomPrice(RoomType.SINGLE),
+                    BigDecimal.valueOf(getRoomPrice(RoomType.SINGLE)),
                     roomAvailability.getOrDefault(RoomType.SINGLE, 0)
             ));
         }
@@ -428,7 +452,7 @@ public class KioskRoomSelectionController implements Initializable {
         if (doubleCount.get() > 0) {
             bookingSession.getSelectedRooms().add(new RoomSelection(
                     RoomType.DOUBLE, doubleCount.get(),
-                    getRoomPrice(RoomType.DOUBLE),
+                    BigDecimal.valueOf(getRoomPrice(RoomType.DOUBLE)),
                     roomAvailability.getOrDefault(RoomType.DOUBLE, 0)
             ));
         }
@@ -436,7 +460,7 @@ public class KioskRoomSelectionController implements Initializable {
         if (deluxeCount.get() > 0) {
             bookingSession.getSelectedRooms().add(new RoomSelection(
                     RoomType.DELUXE, deluxeCount.get(),
-                    getRoomPrice(RoomType.DELUXE),
+                    BigDecimal.valueOf(getRoomPrice(RoomType.DELUXE)),
                     roomAvailability.getOrDefault(RoomType.DELUXE, 0)
             ));
         }
@@ -444,7 +468,7 @@ public class KioskRoomSelectionController implements Initializable {
         if (penthouseCount.get() > 0) {
             bookingSession.getSelectedRooms().add(new RoomSelection(
                     RoomType.PENTHOUSE, penthouseCount.get(),
-                    getRoomPrice(RoomType.PENTHOUSE),
+                    BigDecimal.valueOf(getRoomPrice(RoomType.PENTHOUSE)),
                     roomAvailability.getOrDefault(RoomType.PENTHOUSE, 0)
             ));
         }

@@ -199,7 +199,9 @@
             <children>
                 <Label fx:id="statusLabel" styleClass="status-text" text="Ready" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="roomAvailabilityLabel" styleClass="info-text" text="Available Rooms: 25 | Occupied: 15 | Total: 40" />
+                <Label fx:id="availableRoomsLabel" styleClass="info-text" text="Available Rooms: 25 " />
+            <Label fx:id="occupiedRoomsLabel" text="Occupied: 0" />
+            <Label fx:id="totalRoomsLabel" text="Total Rooms: 25" />
             </children>
         </HBox>
     </bottom>

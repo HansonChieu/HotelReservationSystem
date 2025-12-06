@@ -1,5 +1,6 @@
 package com.hanson.hotelreservationsystem.repository;
 
+import com.hanson.hotelreservationsystem.config.JPAUtil;
 import com.hanson.hotelreservationsystem.model.Room;
 import com.hanson.hotelreservationsystem.model.enums.RoomType;
 import com.hanson.hotelreservationsystem.model.enums.RoomStatus;
@@ -73,6 +74,19 @@ public class RoomRepository {
             Room merged = entityManager.merge(room);
             LOGGER.info("Updated room: " + room.getRoomNumber());
             return merged;
+        }
+    }
+
+    /**
+     * Counts the total number of rooms in the database.
+     */
+    public long countAllRooms() {
+        try (EntityManager em = JPAUtil.getEntityManagerFactory().createEntityManager()) {
+            return em.createQuery("SELECT COUNT(r) FROM Room r", Long.class)
+                    .getSingleResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 
@@ -174,8 +188,6 @@ public class RoomRepository {
     }
 
     public List<Room> findStrictlyAvailableRooms(RoomType roomType, java.time.LocalDate checkIn, java.time.LocalDate checkOut) {
-        // This query selects rooms of the correct type...
-        // ...WHERE the room ID is NOT IN the list of rooms booked during that period.
         String jpql =
                 "SELECT r FROM Room r " +
                         "WHERE r.roomType = :roomType " +
@@ -191,6 +203,26 @@ public class RoomRepository {
 
         TypedQuery<Room> query = entityManager.createQuery(jpql, Room.class);
         query.setParameter("roomType", roomType);
+        query.setParameter("checkIn", checkIn);
+        query.setParameter("checkOut", checkOut);
+
+        return query.getResultList();
+    }
+
+    public List<Room> findStrictlyAvailableRooms(java.time.LocalDate checkIn, java.time.LocalDate checkOut) {
+        String jpql =
+                "SELECT r FROM Room r " +
+                        "WHERE r.id NOT IN (" +
+                        "SELECT rr.room.id FROM ReservationRoom rr " +
+                        "JOIN rr.reservation res " +
+                        "WHERE res.status NOT IN ('CANCELLED', 'CHECKED_OUT') " +
+                        "AND (" +
+                        "(res.checkInDate < :checkOut AND res.checkOutDate > :checkIn)" + // Overlap check
+                        ")" +
+                        ") " +
+                        "ORDER BY r.roomNumber";
+
+        TypedQuery<Room> query = entityManager.createQuery(jpql, Room.class);
         query.setParameter("checkIn", checkIn);
         query.setParameter("checkOut", checkOut);
 

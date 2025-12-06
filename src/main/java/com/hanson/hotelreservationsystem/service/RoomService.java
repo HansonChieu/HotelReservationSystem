@@ -180,6 +180,33 @@ public class RoomService {
     }
 
     /**
+     * Gets occupancy statistics for the current date (Today).
+     * @return Map containing "Total", "Available", and "Occupied" counts.
+     */
+    public Map<String, Integer> getTodayOccupancyStats() {
+        LocalDate today = LocalDate.now();
+
+        // 1. Get Total Rooms
+        int totalRooms = (int) roomRepository.countAllRooms();
+
+        // 2. Get Available Rooms for Tonight
+        // (Available from Today to Tomorrow)
+        List<Room> availableRooms = roomRepository.findStrictlyAvailableRooms(today, today.plusDays(1));
+        int availableCount = availableRooms.size();
+
+        // 3. Calculate Occupied
+        int occupiedCount = totalRooms - availableCount;
+
+        // 4. Return Summary
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("Total", totalRooms);
+        stats.put("Available", availableCount);
+        stats.put("Occupied", occupiedCount);
+
+        return stats;
+    }
+
+    /**
      * Get a summary count of available rooms for ALL types.
      * Iterates through Enums to build the map.
      */

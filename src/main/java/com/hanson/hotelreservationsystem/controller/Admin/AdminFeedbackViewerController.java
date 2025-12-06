@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -91,6 +92,9 @@ public class AdminFeedbackViewerController implements Initializable {
     private FeedbackService feedbackService;
     private AdminSession adminSession;
     private ActivityLogger activityLogger;
+
+    @FXML private VBox detailsPanel;
+    @FXML private Label neutralFeedbackLabel;
 
     public AdminFeedbackViewerController() {
         this.navigationService = NavigationService.getInstance();
@@ -263,6 +267,8 @@ public class AdminFeedbackViewerController implements Initializable {
         feedbackTable.setItems(allFeedback);
     }
 
+
+
     private String getStarDisplay(int rating) {
         StringBuilder stars = new StringBuilder();
         for (int i = 0; i < 5; i++) {
@@ -278,6 +284,13 @@ public class AdminFeedbackViewerController implements Initializable {
                         selectedFeedback = newSel;
                         updateDetails(newSel);
                         updateActionButtons(newSel);
+
+                        // 2. Add logic to show/hide the panel
+                        if (detailsPanel != null) {
+                            boolean isSelected = (newSel != null);
+                            detailsPanel.setVisible(isSelected);
+                            detailsPanel.setManaged(isSelected);
+                        }
                     });
         }
     }
@@ -400,11 +413,13 @@ public class AdminFeedbackViewerController implements Initializable {
         long negative = allFeedback.stream()
                 .filter(f -> getPrimarySentimentTag(f) == SentimentTag.NEGATIVE) // FIXED: was getSentimentTag()
                 .count();
+        long neutral = allFeedback.stream().filter(f -> getPrimarySentimentTag(f) == SentimentTag.NEUTRAL).count();
 
         setLabelText(totalFeedbackLabel, String.valueOf(total));
         setLabelText(averageRatingLabel, String.format("%.1f/5", avgRating));
         setLabelText(positiveFeedbackLabel, String.valueOf(positive));
         setLabelText(negativeFeedbackLabel, String.valueOf(negative));
+        setLabelText(neutralFeedbackLabel, String.valueOf(neutral));
     }
 
     // ==================== Event Handlers ====================

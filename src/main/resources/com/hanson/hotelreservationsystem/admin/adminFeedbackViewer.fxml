@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.TextArea?>
 <BorderPane styleClass="admin-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hanson.hotelreservationsystem.controller.Admin.AdminFeedbackViewerController">
     <top>
         <VBox styleClass="page-header">
@@ -153,7 +154,7 @@
                         <VBox spacing="5">
                             <children>
                                 <Label styleClass="detail-label" text="Comment:" />
-                                <Label fx:id="detailCommentArea" styleClass="detail-comment" wrapText="true" />
+                                <TextArea fx:id="detailCommentArea" editable="false" styleClass="detail-comment" wrapText="true" />
                             </children>
                         </VBox>
                         <HBox spacing="10">

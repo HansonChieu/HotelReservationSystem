@@ -5,6 +5,7 @@ import com.hanson.hotelreservationsystem.model.enums.ReservationStatus;
 import com.hanson.hotelreservationsystem.model.enums.RoomType;
 import com.hanson.hotelreservationsystem.service.NavigationService;
 import com.hanson.hotelreservationsystem.service.ReservationService;
+import com.hanson.hotelreservationsystem.service.RoomService;
 import com.hanson.hotelreservationsystem.session.AdminSession;
 import com.hanson.hotelreservationsystem.util.ActivityLogger;
 import javafx.application.Platform;
@@ -32,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
@@ -107,9 +109,12 @@ public class AdminDashboardController implements Initializable {
     @FXML private Label roleLabel;
     @FXML private Label currentDateTimeLabel;
     @FXML private Label statusLabel;
-    @FXML private Label roomAvailabilityLabel;
-    @FXML private Button logoutButton;
-
+    @FXML
+    private Label availableRoomsLabel;
+    @FXML
+    private Label occupiedRoomsLabel;
+    @FXML
+    private Label totalRoomsLabel;
     // ==================== Data ====================
 
     private ObservableList<Reservation> allReservations = FXCollections.observableArrayList();
@@ -127,6 +132,7 @@ public class AdminDashboardController implements Initializable {
     private ReservationService reservationService;
     private AdminSession adminSession;
     private ActivityLogger activityLogger;
+    private RoomService roomService;
 
     /**
      * Default constructor for FXML loader.
@@ -136,6 +142,7 @@ public class AdminDashboardController implements Initializable {
         this.reservationService = ReservationService.getInstance();
         this.adminSession = AdminSession.getInstance();
         this.activityLogger = ActivityLogger.getInstance();
+        this.roomService = RoomService.getInstance();
     }
 
     /**
@@ -144,11 +151,12 @@ public class AdminDashboardController implements Initializable {
     public AdminDashboardController(NavigationService navigationService,
                                     ReservationService reservationService,
                                     AdminSession adminSession,
-                                    ActivityLogger activityLogger) {
+                                    ActivityLogger activityLogger, RoomService roomService) {
         this.navigationService = navigationService;
         this.reservationService = reservationService;
         this.adminSession = adminSession;
         this.activityLogger = activityLogger;
+        this.roomService = roomService;
     }
 
     @Override
@@ -172,6 +180,7 @@ public class AdminDashboardController implements Initializable {
         // Initial data load
         loadReservations();
         updateDateTime();
+        updateDashboardStats();
 
         // Log activity
         logActivity("DASHBOARD_ACCESS", "SYSTEM", "N/A", "Admin accessed dashboard");
@@ -184,12 +193,42 @@ public class AdminDashboardController implements Initializable {
                 if (newScene != null) {
                     LOGGER.info("Dashboard view active - auto-refreshing data...");
                     loadReservations();
-                    updateRoomAvailability();
                     updateDateTime();
+                    updateDashboardStats();
                 }
             });
         } else {
             LOGGER.warning("rootPane is null. Ensure fx:id='rootPane' is added to the BorderPane in adminDashboard.fxml");
+        }
+    }
+
+    private void updateDashboardStats() {
+        // Fetch stats for today
+        Map<String, Integer> stats = roomService.getTodayOccupancyStats();
+
+        int available = stats.getOrDefault("Available", 0);
+        int occupied = stats.getOrDefault("Occupied", 0);
+        int total = stats.getOrDefault("Total", 0);
+
+        // Update Labels with prefixes
+        if (availableRoomsLabel != null) {
+            availableRoomsLabel.setText(String.format("Available Rooms: %d", available));
+        }
+
+        if (occupiedRoomsLabel != null) {
+            // Option 2: Using String.format (cleaner)
+            occupiedRoomsLabel.setText(String.format("Occupied: %d", occupied));
+        }
+
+        if (totalRoomsLabel != null) {
+            totalRoomsLabel.setText(String.format("Total Rooms: %d", total));
+        }
+
+        if (available == 0 && availableRoomsLabel != null) {
+            availableRoomsLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        } else if (availableRoomsLabel != null) {
+            // Reset style if not zero (important for refreshes)
+            availableRoomsLabel.setStyle("-fx-text-fill: black;");
         }
     }
 
@@ -208,7 +247,7 @@ public class AdminDashboardController implements Initializable {
         if (statusLabel != null) {
             statusLabel.setText("Ready");
         }
-        updateRoomAvailability();
+        updateDashboardStats();
     }
 
     /**
@@ -217,26 +256,6 @@ public class AdminDashboardController implements Initializable {
     private void updateDateTime() {
         if (currentDateTimeLabel != null) {
             currentDateTimeLabel.setText(LocalDateTime.now().format(DATETIME_FORMAT));
-        }
-    }
-
-    /**
-     * Update room availability display.
-     */
-    private void updateRoomAvailability() {
-        if (roomAvailabilityLabel != null) {
-            // In a real app, call RoomService to get these counts
-            int total = 40;
-            int occupied = 0;
-            // Simple calculation based on loaded reservations that are CHECKED_IN
-            if (allReservations != null) {
-                occupied = (int) allReservations.stream()
-                        .filter(r -> r.getStatus() == ReservationStatus.CHECKED_IN)
-                        .count();
-            }
-            int available = total - occupied;
-            roomAvailabilityLabel.setText(String.format("Available Rooms: %d | Occupied: %d | Total: %d",
-                    available, occupied, total));
         }
     }
 
