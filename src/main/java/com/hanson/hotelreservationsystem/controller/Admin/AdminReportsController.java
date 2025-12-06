@@ -1,25 +1,23 @@
 // ============================================================================
-// AdminReportsController.java - COMPLETE REWRITE
+// AdminReportsController.java - UPDATED FOR EXPORT REQUIREMENTS
 // ============================================================================
-// The controller needs to be rewritten to match the FXML's TabPane design.
-// The FXML has 4 tabs: Revenue, Occupancy, Activity Logs, Feedback Summary
-// Each tab has its own filters, summary cards, and table.
-// NOTE: No charts (per requirements - CSV/PDF/TXT export only)
-// ============================================================================
-
 package com.hanson.hotelreservationsystem.controller.Admin;
 
+import com.hanson.hotelreservationsystem.config.JPAUtil;
+import com.hanson.hotelreservationsystem.model.ActivityLog;
+import com.hanson.hotelreservationsystem.model.Feedback;
 import com.hanson.hotelreservationsystem.model.Reservation;
 import com.hanson.hotelreservationsystem.repository.ReservationRepository;
+import com.hanson.hotelreservationsystem.repository.RoomRepository;
+import com.hanson.hotelreservationsystem.service.FeedbackService;
 import com.hanson.hotelreservationsystem.service.NavigationService;
+import com.hanson.hotelreservationsystem.model.enums.ReservationStatus;
+import com.hanson.hotelreservationsystem.model.enums.RoomType;
+
 import java.io.File;
 import java.io.FileWriter;
 import javafx.stage.FileChooser;
-import com.hanson.hotelreservationsystem.service.PricingService;
-import com.hanson.hotelreservationsystem.service.ReservationService;
-import com.hanson.hotelreservationsystem.service.RoomService;
-import com.hanson.hotelreservationsystem.session.AdminSession;
-import com.hanson.hotelreservationsystem.util.ActivityLogger;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -30,10 +28,19 @@ import javafx.collections.ObservableList;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AdminReportsController {
+
+    // ... [Previous FXML fields remain unchanged] ...
 
     // ========================================================================
     // TAB PANE AND CONTENT PANES
@@ -146,9 +153,15 @@ public class AdminReportsController {
     // ========================================================================
 
     private final NavigationService navigationService;
+    private final ReservationRepository reservationRepository;
+    private final RoomRepository roomRepository;
+    private final FeedbackService feedbackService;
 
     public AdminReportsController() {
         this.navigationService = NavigationService.getInstance();
+        this.reservationRepository = ReservationRepository.getInstance();
+        this.roomRepository = RoomRepository.getInstance();
+        this.feedbackService = FeedbackService.getInstance();
     }
 
     @FXML
@@ -174,26 +187,30 @@ public class AdminReportsController {
         occupancyEndDate.setValue(LocalDate.now());
         feedbackStartDate.setValue(LocalDate.now().minusMonths(1));
         feedbackEndDate.setValue(LocalDate.now());
+        activityDateFilter.setValue(LocalDate.now());
 
-        // Load initial data
+        // Load initial data for the default tab
         handleGenerateRevenue();
     }
 
     private void setupComboBoxes() {
         // Revenue period options
-        revenuePeriodCombo.getItems().addAll("Daily", "Weekly", "Monthly", "Yearly", "Custom");
+        revenuePeriodCombo.getItems().addAll("Daily", "Monthly", "Custom");
         revenuePeriodCombo.setValue("Monthly");
 
         // Occupancy period options
-        occupancyPeriodCombo.getItems().addAll("Daily", "Weekly", "Monthly", "Custom");
+        occupancyPeriodCombo.getItems().addAll("Daily", "Custom");
         occupancyPeriodCombo.setValue("Daily");
 
         // Room type options
-        roomTypeCombo.getItems().addAll("All Room Types", "Single", "Double", "Deluxe", "Penthouse");
+        roomTypeCombo.getItems().add("All Room Types");
+        for(RoomType type : RoomType.values()){
+            roomTypeCombo.getItems().add(type.toString());
+        }
         roomTypeCombo.setValue("All Room Types");
 
         // Activity type options
-        activityTypeFilter.getItems().addAll("All Actions", "LOGIN", "LOGOUT", "CREATE", "UPDATE", "DELETE", "PAYMENT", "CHECKOUT");
+        activityTypeFilter.getItems().addAll("All Actions", "LOGIN", "CREATE_RESERVATION", "CHECKOUT", "PROCESS_PAYMENT", "CANCEL_RESERVATION");
         activityTypeFilter.setValue("All Actions");
 
         // Feedback rating options
@@ -250,15 +267,19 @@ public class AdminReportsController {
         activityContent.setVisible(false);
         feedbackSummaryContent.setVisible(false);
 
-        // Show selected content pane
+        // Show selected content pane and refresh data
         if (newTab == revenueTab) {
             revenueContent.setVisible(true);
+            handleGenerateRevenue();
         } else if (newTab == occupancyTab) {
             occupancyContent.setVisible(true);
+            handleGenerateOccupancy();
         } else if (newTab == activityTab) {
             activityContent.setVisible(true);
+            handleSearchActivity();
         } else if (newTab == feedbackSummaryTab) {
             feedbackSummaryContent.setVisible(true);
+            handleGenerateFeedback();
         }
     }
 
@@ -279,33 +300,57 @@ public class AdminReportsController {
         revenueData.clear();
         LocalDate start = revenueStartDate.getValue();
         LocalDate end = revenueEndDate.getValue();
+        String periodMode = revenuePeriodCombo.getValue();
 
-        // 1. Fetch real data
-        List<Reservation> reservations = ReservationRepository.getInstance().findByDateRange(start, end);
+        List<Reservation> reservations = reservationRepository.findByDateRange(start, end);
 
-        // 2. Aggregate Data
-        BigDecimal totalRev = BigDecimal.ZERO;
-        BigDecimal totalTax = BigDecimal.ZERO;
+        Map<String, RevenueRow> bucketMap = new HashMap<>();
+        DateTimeFormatter dailyFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter monthlyFmt = DateTimeFormatter.ofPattern("yyyy-MM");
+
+        BigDecimal grandTotal = BigDecimal.ZERO;
 
         for (Reservation res : reservations) {
-            totalRev = totalRev.add(res.getTotalAmount());
-            totalTax = totalTax.add(res.getTaxAmount());
+            if(res.getStatus() == ReservationStatus.CANCELLED) continue;
+
+            String key;
+            if ("Daily".equals(periodMode)) {
+                key = res.getCheckInDate().format(dailyFmt);
+            } else if ("Monthly".equals(periodMode)) {
+                key = res.getCheckInDate().format(monthlyFmt);
+            } else {
+                key = "Total Period";
+            }
+
+            RevenueRow row = bucketMap.getOrDefault(key, new RevenueRow(key, 0, "$0.00", "$0.00", "$0.00", "$0.00"));
+
+            BigDecimal rowSub = new BigDecimal(row.subtotal.replace("$", "").replace(",", ""));
+            BigDecimal rowTax = new BigDecimal(row.tax.replace("$", "").replace(",", ""));
+            BigDecimal rowDisc = new BigDecimal(row.discount.replace("$", "").replace(",", ""));
+            BigDecimal rowTot = new BigDecimal(row.total.replace("$", "").replace(",", ""));
+
+            row.count++;
+            row.subtotal = String.format("$%.2f", rowSub.add(res.getSubtotal()));
+            row.tax = String.format("$%.2f", rowTax.add(res.getTaxAmount()));
+            row.discount = String.format("$%.2f", rowDisc.add(res.getDiscountAmount().add(res.getLoyaltyDiscount())));
+            row.total = String.format("$%.2f", rowTot.add(res.getTotalAmount()));
+
+            bucketMap.put(key, row);
+            grandTotal = grandTotal.add(res.getTotalAmount());
         }
 
-        // 3. Add to Table
-        // You can group by month if you want, here is a simple total row
-        revenueData.add(new RevenueRow(
-                "Total Period",
-                reservations.size(),
-                String.format("$%.2f", totalRev.subtract(totalTax)), // Subtotal
-                String.format("$%.2f", totalTax),
-                "$0.00",
-                String.format("$%.2f", totalRev)
-        ));
+        List<RevenueRow> rows = new ArrayList<>(bucketMap.values());
+        rows.sort((r1, r2) -> r1.period.compareTo(r2.period));
+        revenueData.addAll(rows);
 
-        // Update Cards
-        totalRevenueLabel.setText(String.format("$%.2f", totalRev));
+        totalRevenueLabel.setText(String.format("$%.2f", grandTotal));
         totalReservationsLabel.setText(String.valueOf(reservations.size()));
+
+        if(!reservations.isEmpty()){
+            avgRevenueLabel.setText(String.format("$%.2f", grandTotal.divide(BigDecimal.valueOf(reservations.size()), 2, RoundingMode.HALF_UP)));
+        } else {
+            avgRevenueLabel.setText("$0.00");
+        }
     }
 
     // ========================================================================
@@ -322,19 +367,52 @@ public class AdminReportsController {
 
     @FXML
     private void handleGenerateOccupancy() {
-        // Clear existing data
         occupancyData.clear();
+        LocalDate start = occupancyStartDate.getValue();
+        LocalDate end = occupancyEndDate.getValue();
+        String selectedRoomType = roomTypeCombo.getValue();
 
-        // TODO: Load actual data from service
-        // For now, add sample data
-        occupancyData.add(new OccupancyRow("2025-11-15", 40, 32, "80%", "$3,200.00"));
-        occupancyData.add(new OccupancyRow("2025-11-16", 40, 35, "87.5%", "$3,500.00"));
-        occupancyData.add(new OccupancyRow("2025-11-17", 40, 38, "95%", "$3,800.00"));
+        long totalRooms;
+        if (selectedRoomType == null || "All Room Types".equals(selectedRoomType)) {
+            totalRooms = roomRepository.count();
+        } else {
+            totalRooms = roomRepository.countByRoomType(RoomType.valueOf(selectedRoomType));
+        }
 
-        // Update summary cards
-        avgOccupancyLabel.setText("87.5%");
-        peakOccupancyLabel.setText("95%");
-        totalRoomNightsLabel.setText("105");
+        if (totalRooms == 0) return;
+
+        List<Reservation> activeReservations = reservationRepository.findByCheckInDateBetween(start.minusDays(30), end);
+
+        long totalOccupiedCount = 0;
+        long maxOccupied = 0;
+        long totalDays = ChronoUnit.DAYS.between(start, end) + 1;
+
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            final LocalDate currentDate = date;
+
+            long occupiedCount = activeReservations.stream()
+                    .filter(r -> r.getStatus() != ReservationStatus.CANCELLED)
+                    .filter(r -> !r.getCheckInDate().isAfter(currentDate) && r.getCheckOutDate().isAfter(currentDate))
+                    .count();
+
+            double percentage = (double) occupiedCount / totalRooms * 100.0;
+
+            occupancyData.add(new OccupancyRow(
+                    date.toString(),
+                    (int)(totalRooms - occupiedCount),
+                    (int)occupiedCount,
+                    String.format("%.1f%%", percentage),
+                    "N/A"
+            ));
+
+            totalOccupiedCount += occupiedCount;
+            if(occupiedCount > maxOccupied) maxOccupied = occupiedCount;
+        }
+
+        double avgOcc = (double) totalOccupiedCount / (totalRooms * totalDays) * 100.0;
+        avgOccupancyLabel.setText(String.format("%.1f%%", avgOcc));
+        peakOccupancyLabel.setText(String.format("%d Rooms", maxOccupied));
+        totalRoomNightsLabel.setText(String.valueOf(totalOccupiedCount));
     }
 
     // ========================================================================
@@ -343,18 +421,59 @@ public class AdminReportsController {
 
     @FXML
     private void handleSearchActivity() {
-        // Clear existing data
         activityData.clear();
 
         String searchTerm = activitySearchField.getText().trim().toLowerCase();
         String typeFilter = activityTypeFilter.getValue();
         LocalDate dateFilter = activityDateFilter.getValue();
 
-        // TODO: Load actual data from ActivityLogger service
-        // For now, add sample data
-        activityData.add(new ActivityRow("2025-11-18 14:32:15", "admin", "LOGIN", "User", "1", "Admin logged in"));
-        activityData.add(new ActivityRow("2025-11-18 14:35:20", "admin", "CREATE", "Reservation", "1001", "Created reservation for John Doe"));
-        activityData.add(new ActivityRow("2025-11-18 15:10:45", "admin", "PAYMENT", "Payment", "TXN-001", "Processed payment of $450.00"));
+        EntityManager em = JPAUtil.createEntityManager();
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT a FROM ActivityLog a WHERE 1=1");
+
+            if (dateFilter != null) {
+                jpql.append(" AND a.timestamp BETWEEN :startOfDay AND :endOfDay");
+            }
+            if (typeFilter != null && !"All Actions".equals(typeFilter)) {
+                jpql.append(" AND a.action = :action");
+            }
+            if (!searchTerm.isEmpty()) {
+                jpql.append(" AND (LOWER(a.actor) LIKE :search OR LOWER(a.message) LIKE :search)");
+            }
+            jpql.append(" ORDER BY a.timestamp DESC");
+
+            TypedQuery<ActivityLog> query = em.createQuery(jpql.toString(), ActivityLog.class);
+
+            if (dateFilter != null) {
+                query.setParameter("startOfDay", dateFilter.atStartOfDay());
+                query.setParameter("endOfDay", dateFilter.atTime(23, 59, 59));
+            }
+            if (typeFilter != null && !"All Actions".equals(typeFilter)) {
+                query.setParameter("action", typeFilter);
+            }
+            if (!searchTerm.isEmpty()) {
+                query.setParameter("search", "%" + searchTerm + "%");
+            }
+
+            List<ActivityLog> logs = query.getResultList();
+
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            for (ActivityLog log : logs) {
+                activityData.add(new ActivityRow(
+                        log.getTimestamp().format(dtf),
+                        log.getActor(),
+                        log.getAction(),
+                        log.getEntityType(),
+                        log.getEntityId() != null ? log.getEntityId().toString() : "-",
+                        log.getMessage()
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
     }
 
     // ========================================================================
@@ -363,53 +482,90 @@ public class AdminReportsController {
 
     @FXML
     private void handleGenerateFeedback() {
-        // Clear existing data
         feedbackData.clear();
+        LocalDate start = feedbackStartDate.getValue();
+        LocalDate end = feedbackEndDate.getValue();
+        String ratingFilter = feedbackRatingFilter.getValue();
 
-        // TODO: Load actual data from FeedbackService
-        // For now, add sample data
-        feedbackData.add(new FeedbackRow("2025-11-15", "John Doe", 5, "POSITIVE", "Excellent stay! Very clean rooms."));
-        feedbackData.add(new FeedbackRow("2025-11-16", "Jane Smith", 4, "POSITIVE", "Good service, will come again."));
-        feedbackData.add(new FeedbackRow("2025-11-17", "Bob Wilson", 3, "NEUTRAL", "Average experience overall."));
+        List<Feedback> allFeedback = feedbackService.findAll();
 
-        // Update summary labels
-        feedbackTotalLabel.setText("3");
-        feedbackAvgLabel.setText("4.0");
-        feedbackTagsLabel.setText("Clean, Service, Value");
+        List<Feedback> filtered = allFeedback.stream()
+                .filter(f -> {
+                    if (f.getSubmittedAt() == null) return false;
+                    LocalDate subDate = f.getSubmittedAt().toLocalDate();
+                    return !subDate.isBefore(start) && !subDate.isAfter(end);
+                })
+                .filter(f -> {
+                    if (ratingFilter == null || "All Ratings".equals(ratingFilter)) return true;
+                    int rating = Integer.parseInt(ratingFilter.split(" ")[0]);
+                    return f.getRating() == rating;
+                })
+                .collect(Collectors.toList());
+
+        int total = filtered.size();
+        double avg = filtered.stream().mapToInt(Feedback::getRating).average().orElse(0.0);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (Feedback f : filtered) {
+            String sentiment = f.getSentimentTags().isEmpty() ? "N/A" :
+                    f.getSentimentTags().stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining(", "));
+
+            feedbackData.add(new FeedbackRow(
+                    f.getSubmittedAt().format(dtf),
+                    f.getGuest() != null ? f.getGuest().getFullName() : "Anonymous",
+                    f.getRating(),
+                    sentiment,
+                    f.getComments()
+            ));
+        }
+
+        feedbackTotalLabel.setText(String.valueOf(total));
+        feedbackAvgLabel.setText(String.format("%.1f", avg));
+        feedbackTagsLabel.setText(total > 0 ? "Data Loaded" : "No Data");
     }
 
     // ========================================================================
-    // EXPORT HANDLER
+    // EXPORT HANDLER - MODIFIED FOR CSV AND TXT
     // ========================================================================
 
     @FXML
     private void handleExport() {
-        // 1. Setup File Chooser
+        // 1. Setup File Chooser with CSV and TXT filters
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Report");
-        fileChooser.setInitialFileName("RevenueReport.csv");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+
+        String defaultName = "Report";
+        if(revenueContent.isVisible()) defaultName = "RevenueReport";
+        else if(occupancyContent.isVisible()) defaultName = "OccupancyReport";
+        else if(activityContent.isVisible()) defaultName = "ActivityLog";
+        else if(feedbackSummaryContent.isVisible()) defaultName = "FeedbackReport";
+
+        fileChooser.setInitialFileName(defaultName);
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("CSV Files (*.csv)", "*.csv"),
+                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
+        );
 
         // 2. Get File
         File file = fileChooser.showSaveDialog(reportTabs.getScene().getWindow());
 
         if (file != null) {
-            try (FileWriter writer = new FileWriter(file)) {
-                // 3. Write Header
-                writer.write("Period,Reservations,Subtotal,Tax,Total\n");
+            // Determine delimiter based on file extension
+            String delimiter = file.getName().toLowerCase().endsWith(".txt") ? "\t" : ",";
 
-                // 4. Write Data rows
-                for (RevenueRow row : revenueData) {
-                    writer.write(String.format("%s,%d,%s,%s,%s\n",
-                            row.period,
-                            row.count,
-                            row.subtotal.replace("$","").replace(",",""), // Clean currency formatting
-                            row.tax.replace("$","").replace(",",""),
-                            row.total.replace("$","").replace(",","")
-                    ));
+            try (FileWriter writer = new FileWriter(file)) {
+                if (revenueContent.isVisible()) {
+                    exportRevenue(writer, delimiter);
+                } else if (occupancyContent.isVisible()) {
+                    exportOccupancy(writer, delimiter);
+                } else if (activityContent.isVisible()) {
+                    exportActivity(writer, delimiter);
+                } else {
+                    exportFeedback(writer, delimiter);
                 }
 
-                // 5. Show Success
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Export Successful!");
                 alert.showAndWait();
 
@@ -421,6 +577,51 @@ public class AdminReportsController {
         }
     }
 
+    private void exportRevenue(FileWriter writer, String d) throws IOException {
+        writer.write("Period" + d + "Reservations" + d + "Subtotal" + d + "Tax" + d + "Total\n");
+        for (RevenueRow row : revenueData) {
+            writer.write(String.format("%s%s%d%s%s%s%s%s%s\n",
+                    row.period, d, row.count, d,
+                    row.subtotal.replace("$","").replace(",",""), d,
+                    row.tax.replace("$","").replace(",",""), d,
+                    row.total.replace("$","").replace(",","")));
+        }
+    }
+
+    private void exportOccupancy(FileWriter writer, String d) throws IOException {
+        writer.write("Date" + d + "Available" + d + "Occupied" + d + "Percentage\n");
+        for (OccupancyRow row : occupancyData) {
+            writer.write(String.format("%s%s%d%s%d%s%s\n",
+                    row.date, d, row.available, d, row.occupied, d, row.percentage));
+        }
+    }
+
+    private void exportActivity(FileWriter writer, String d) throws IOException {
+        // [UPDATED] Headers now include Entity ID
+        writer.write("Timestamp" + d + "Actor" + d + "Action" + d + "Entity" + d + "Entity ID" + d + "Message\n");
+
+        for (ActivityRow row : activityData) {
+            // Sanitize content to prevent breaking the delimiter
+            String safeMessage = row.message.replace(d, " ").replace("\n", " ");
+
+            writer.write(String.format("%s%s%s%s%s%s%s%s%s%s%s\n",
+                    row.timestamp, d,
+                    row.actor, d,
+                    row.action, d,
+                    row.entity, d,
+                    row.id, d, // [UPDATED] Added Entity Identifier
+                    safeMessage));
+        }
+    }
+
+    private void exportFeedback(FileWriter writer, String d) throws IOException {
+        writer.write("Date" + d + "Guest" + d + "Rating" + d + "Sentiment" + d + "Comment\n");
+        for (FeedbackRow row : feedbackData) {
+            String safeComment = row.comment.replace(d, " ").replace("\n", " ");
+            writer.write(String.format("%s%s%s%s%d%s%s%s%s\n",
+                    row.date, d, row.guest, d, row.rating, d, row.sentiment, d, safeComment));
+        }
+    }
 
     @FXML
     private void handleBack() {

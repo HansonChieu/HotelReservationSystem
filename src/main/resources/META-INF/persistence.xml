@@ -19,6 +19,7 @@
         <class>com.hanson.hotelreservationsystem.model.LoyaltyTransaction</class>
         <class>com.hanson.hotelreservationsystem.model.Admin</class>
         <class>com.hanson.hotelreservationsystem.model.WaitlistEntry</class>
+        <class>com.hanson.hotelreservationsystem.model.ActivityLog</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -29,9 +30,6 @@
             <property name="jakarta.persistence.jdbc.password" value="password"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
-
-<!--            <property name="jakarta.persistence.schema-generation.scripts.action" value="create"/>-->
-<!--            <property name="jakarta.persistence.schema-generation.scripts.create-target" value="hotel_database_script.sql"/>-->
 
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>

@@ -99,7 +99,7 @@
             <Insets bottom="15" top="15" />
          </padding>
          <children>
-            <Label styleClass="footer-text" text="© 2025 Grand Plaza Hotel" />
+            <Label styleClass="footer-text" text="© 2025 ARC Hotel" />
             <Label styleClass="separator-text" text="|" />
             <Label styleClass="footer-text" text="All Rights Reserved" />
          </children>
